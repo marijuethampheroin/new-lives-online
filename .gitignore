@@ -1,0 +1,14 @@
+*.exe
+*.zip
+*.rar
+*.7z
+*.msi
+*.iso
+*.dmg
+*.pak
+*.bin
+*.dat
+*.dll
+*.pdb
+Thumbs.db
+.DS_Store
