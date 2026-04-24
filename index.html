@@ -3,192 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Real Lives — Modern Edition</title>
+<title>Real Lives - Modern Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --ink: #1a1208;
-  --paper: #f5f0e8;
-  --aged: #e8dfc8;
-  --sepia: #c9a96e;
-  --rust: #9b3a1a;
-  --forest: #2d5a27;
-  --sky: #1a4a6b;
-  --gold: #c8922a;
-  --muted: #7a6e5e;
-  --card: #faf6ed;
-  --border: #d4c9a8;
-  --shadow: rgba(26,18,8,0.15);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'IBM Plex Sans', sans-serif;
-  background: var(--paper);
-  color: var(--ink);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 1000;
-  opacity: 0.6;
-}
-.screen { display: none; min-height: 100vh; }
-.screen.active { display: block; }
-#screen-title {
-  display: none; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 100vh; text-align: center; padding: 40px 20px;
-  background: radial-gradient(ellipse at 50% 30%, #2d1f0a 0%, #1a1208 70%);
-  position: relative; overflow: hidden;
-}
-#screen-title.active { display: flex; }
-#screen-title::before {
-  content: ''; position: absolute; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(200,146,42,0.04) 40px, rgba(200,146,42,0.04) 41px),
-  repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(200,146,42,0.04) 40px, rgba(200,146,42,0.04) 41px);
-}
-.title-globe { font-size: 80px; margin-bottom: 24px; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(200,146,42,0.4)); }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-.title-main { font-family: 'Playfair Display', serif; font-size: clamp(42px,8vw,80px); color: var(--sepia); letter-spacing: -1px; line-height: 1; margin-bottom: 8px; }
-.title-sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; margin-bottom: 48px; opacity: 0.8; }
-.title-tagline { font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; color: rgba(245,240,232,0.6); margin-bottom: 56px; max-width: 420px; }
-.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-.btn-primary { background: var(--gold); color: var(--ink); font-weight: 500; }
-.btn-primary:hover { background: var(--sepia); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,146,42,0.4); }
-.btn-secondary { background: transparent; color: var(--sepia); border: 1px solid rgba(201,169,110,0.4); }
-.btn-secondary:hover { background: rgba(201,169,110,0.1); border-color: var(--sepia); }
-.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); font-size: 11px; padding: 10px 20px; }
-.btn-ghost:hover { background: var(--aged); color: var(--ink); }
-.title-buttons { display: flex; flex-direction: column; gap: 12px; align-items: center; }
-.title-stats { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(201,169,110,0.4); letter-spacing: 2px; }
-#screen-newlife { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; background: var(--paper); }
-#screen-newlife.active { display: flex; }
-.newlife-card { background: var(--card); border: 1px solid var(--border); padding: 40px; max-width: 560px; width: 100%; box-shadow: 0 4px 32px var(--shadow); }
-.card-title { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 8px; }
-.card-subtitle { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 32px; }
-.form-group { margin-bottom: 24px; }
-.form-label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.form-select, .form-input { width: 100%; padding: 12px 16px; background: var(--paper); border: 1px solid var(--border); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; appearance: none; cursor: pointer; transition: border-color 0.2s; }
-.form-select:focus, .form-input:focus { outline: none; border-color: var(--sepia); }
-.region-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-.region-btn { padding: 12px 8px; background: var(--paper); border: 1px solid var(--border); cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); transition: all 0.15s; text-align: center; }
-.region-btn:hover { border-color: var(--sepia); color: var(--ink); background: var(--aged); }
-.region-btn.selected { background: var(--ink); color: var(--sepia); border-color: var(--ink); }
-.region-btn .region-emoji { display: block; font-size: 20px; margin-bottom: 4px; }
-.era-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
-.era-btn { padding: 10px 6px; background: var(--paper); border: 1px solid var(--border); cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--muted); transition: all 0.15s; text-align: center; }
-.era-btn:hover { border-color: var(--sepia); color: var(--ink); }
-.era-btn.selected { background: var(--ink); color: var(--sepia); border-color: var(--ink); }
-.divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
-.form-row { display: flex; gap: 12px; }
-.form-row .form-group { flex: 1; }
-#screen-game { display: none; min-height: 100vh; background: var(--paper); }
-#screen-game.active { display: block; }
-.game-layout { display: grid; grid-template-columns: 300px 1fr; grid-template-rows: auto 1fr; min-height: 100vh; }
-.game-header { grid-column: 1/-1; background: var(--ink); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--gold); }
-.game-logo { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--sepia); letter-spacing: 1px; }
-.game-age-display { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--aged); text-align: center; }
-.age-number { font-size: 28px; color: var(--gold); display: block; line-height: 1; }
-.header-actions { display: flex; gap: 8px; }
-.game-sidebar { background: var(--card); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; }
-.character-portrait { text-align: center; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-.portrait-avatar { font-size: 56px; display: block; margin-bottom: 8px; filter: drop-shadow(0 4px 8px var(--shadow)); }
-.char-name { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 2px; }
-.char-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
-.stat-section { margin-bottom: 16px; }
-.stat-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.stat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-.stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); width: 72px; flex-shrink: 0; }
-.stat-bar-wrap { flex: 1; height: 6px; background: var(--aged); overflow: hidden; }
-.stat-bar-fill { height: 100%; transition: width 0.6s ease; }
-.stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink); width: 24px; text-align: right; }
-.bar-health { background: var(--forest); }
-.bar-happiness { background: var(--gold); }
-.bar-intelligence { background: var(--sky); }
-.bar-wealth { background: var(--rust); }
-.bar-default { background: var(--muted); }
-.life-facts { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; }
-.fact-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
-.fact-key { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
-.fact-val { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink); text-align: right; max-width: 140px; }
-.game-main { display: flex; flex-direction: column; overflow: hidden; }
-.event-feed { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 12px; max-height: calc(100vh - 140px); }
-.event-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--sepia); padding: 16px 20px; animation: slideIn 0.3s ease; }
-@keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
-.event-card.event-birth { border-left-color: var(--gold); }
-.event-card.event-death { border-left-color: #222; background: #f0ece4; }
-.event-card.event-positive { border-left-color: var(--forest); }
-.event-card.event-negative { border-left-color: var(--rust); }
-.event-card.event-neutral { border-left-color: var(--sky); }
-.event-card.event-milestone { border-left-color: var(--gold); background: #fdf8ee; }
-.event-card.event-decision { border-left-color: var(--sepia); background: #faf6ed; }
-.event-age-tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-.event-text { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink); }
-.event-stat-changes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-.stat-chip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 2px 8px; background: var(--aged); }
-.stat-chip.pos { color: var(--forest); }
-.stat-chip.neg { color: var(--rust); }
-.decision-panel { background: var(--ink); padding: 20px 24px; border-top: 2px solid var(--sepia); }
-.decision-prompt { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--aged); margin-bottom: 14px; line-height: 1.5; }
-.decision-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.choice-btn { padding: 10px 18px; background: transparent; border: 1px solid rgba(201,169,110,0.4); color: var(--sepia); font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.15s; text-align: left; line-height: 1.4; }
-.choice-btn:hover { background: rgba(201,169,110,0.15); border-color: var(--sepia); color: var(--aged); }
-.action-bar { display: flex; align-items: center; gap: 12px; }
-.year-btn { padding: 12px 28px; background: var(--gold); color: var(--ink); border: none; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.15s; font-weight: 500; }
-.year-btn:hover { background: var(--sepia); color: var(--paper); }
-.year-btn:disabled { opacity: 0.4; cursor: default; }
-.auto-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
-.toggle-switch { position: relative; display: inline-block; width: 36px; height: 18px; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #3a3020; transition: 0.2s; }
-.toggle-slider:before { content: ''; position: absolute; height: 12px; width: 12px; left: 3px; bottom: 3px; background: var(--muted); transition: 0.2s; }
-input:checked + .toggle-slider { background: var(--gold); }
-input:checked + .toggle-slider:before { transform: translateX(18px); background: var(--ink); }
-#screen-death { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; background: #111008; color: var(--aged); }
-#screen-death.active { display: flex; }
-.death-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: clamp(28px,5vw,48px); color: var(--sepia); margin-bottom: 8px; text-align: center; }
-.death-subtitle { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 40px; }
-.epitaph { max-width: 560px; width: 100%; background: #1a1208; border: 1px solid #3a2e18; padding: 36px; text-align: center; margin-bottom: 32px; }
-.epitaph::before { content: '†'; font-size: 24px; color: var(--sepia); display: block; margin-bottom: 16px; }
-.epitaph-name { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--sepia); margin-bottom: 4px; }
-.epitaph-dates { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 2px; margin-bottom: 20px; }
-.epitaph-cause { font-family: 'Playfair Display', serif; font-style: italic; color: var(--muted); font-size: 15px; margin-bottom: 20px; line-height: 1.6; }
-.life-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #3a2e18; margin-bottom: 20px; }
-.summary-cell { background: #1a1208; padding: 12px 16px; }
-.summary-cell-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
-.summary-cell-val { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--sepia); }
-.epitaph-quote { font-family: 'Playfair Display', serif; font-style: italic; color: rgba(201,169,110,0.5); font-size: 13px; line-height: 1.7; margin-top: 12px; }
-.death-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-.achievement-toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); border: 1px solid var(--gold); border-left: 4px solid var(--gold); padding: 14px 18px; max-width: 280px; z-index: 999; animation: toastIn 0.3s ease; display: none; }
-@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-.toast-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
-.toast-name { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--aged); margin-bottom: 2px; }
-.toast-desc { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted); }
-.event-feed::-webkit-scrollbar { width: 4px; }
-.event-feed::-webkit-scrollbar-track { background: var(--aged); }
-.event-feed::-webkit-scrollbar-thumb { background: var(--sepia); }
-@media (max-width: 700px) { .game-layout { grid-template-columns: 1fr; } .game-sidebar { display: none; } }
+:root{--ink:#1a1208;--paper:#f5f0e8;--aged:#e8dfc8;--sepia:#c9a96e;--rust:#9b3a1a;--forest:#2d5a27;--sky:#1a4a6b;--gold:#c8922a;--muted:#7a6e5e;--card:#faf6ed;--border:#d4c9a8;--shadow:rgba(26,18,8,0.15);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+#screen-title{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px 20px;background:radial-gradient(ellipse at 50% 30%,#2d1f0a 0%,#1a1208 70%);position:relative;overflow:hidden;}
+#screen-title.active{display:flex;}
+#screen-title::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(200,146,42,0.04) 40px,rgba(200,146,42,0.04) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(200,146,42,0.04) 40px,rgba(200,146,42,0.04) 41px);}
+.title-globe{font-size:80px;margin-bottom:24px;animation:float 4s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(200,146,42,0.4));}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.title-main{font-family:'Playfair Display',serif;font-size:clamp(42px,8vw,80px);color:var(--sepia);letter-spacing:-1px;line-height:1;margin-bottom:8px;}
+.title-sub{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:6px;color:var(--gold);text-transform:uppercase;margin-bottom:48px;opacity:0.8;}
+.title-tagline{font-family:'Playfair Display',serif;font-style:italic;font-size:20px;color:rgba(245,240,232,0.6);margin-bottom:56px;max-width:420px;}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.2s;}
+.btn-primary{background:var(--gold);color:var(--ink);font-weight:500;}
+.btn-primary:hover{background:var(--sepia);transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,146,42,0.4);}
+.btn-secondary{background:transparent;color:var(--sepia);border:1px solid rgba(201,169,110,0.4);}
+.btn-secondary:hover{background:rgba(201,169,110,0.1);border-color:var(--sepia);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);font-size:11px;padding:10px 20px;}
+.btn-ghost:hover{background:var(--aged);color:var(--ink);}
+.title-buttons{display:flex;flex-direction:column;gap:12px;align-items:center;}
+.title-stats{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(201,169,110,0.4);letter-spacing:2px;}
+#screen-newlife{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;background:var(--paper);}
+#screen-newlife.active{display:flex;}
+.newlife-card{background:var(--card);border:1px solid var(--border);padding:40px;max-width:560px;width:100%;box-shadow:0 4px 32px var(--shadow);}
+.card-title{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:8px;}
+.card-subtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:32px;}
+.form-group{margin-bottom:24px;}
+.form-label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.form-select,.form-input{width:100%;padding:12px 16px;background:var(--paper);border:1px solid var(--border);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;appearance:none;cursor:pointer;transition:border-color 0.2s;}
+.form-select:focus,.form-input:focus{outline:none;border-color:var(--sepia);}
+.region-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.region-btn{padding:12px 8px;background:var(--paper);border:1px solid var(--border);cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);transition:all 0.15s;text-align:center;}
+.region-btn:hover{border-color:var(--sepia);color:var(--ink);background:var(--aged);}
+.region-btn.selected{background:var(--ink);color:var(--sepia);border-color:var(--ink);}
+.region-emoji{display:block;font-size:20px;margin-bottom:4px;}
+.era-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.era-btn{padding:10px 6px;background:var(--paper);border:1px solid var(--border);cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);transition:all 0.15s;text-align:center;}
+.era-btn:hover{border-color:var(--sepia);color:var(--ink);}
+.era-btn.selected{background:var(--ink);color:var(--sepia);border-color:var(--ink);}
+.divider{border:none;border-top:1px solid var(--border);margin:28px 0;}
+.form-row{display:flex;gap:12px;}
+.form-row .form-group{flex:1;}
+#screen-game{display:none;min-height:100vh;background:var(--paper);}
+#screen-game.active{display:block;}
+.game-layout{display:grid;grid-template-columns:300px 1fr;grid-template-rows:auto 1fr;min-height:100vh;}
+.game-header{grid-column:1/-1;background:var(--ink);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold);}
+.game-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--sepia);letter-spacing:1px;}
+.game-age-display{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--aged);text-align:center;}
+.age-number{font-size:28px;color:var(--gold);display:block;line-height:1;}
+.header-actions{display:flex;gap:8px;}
+.game-sidebar{background:var(--card);border-right:1px solid var(--border);padding:20px;overflow-y:auto;}
+.character-portrait{text-align:center;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.portrait-avatar{font-size:56px;display:block;margin-bottom:8px;}
+.char-name{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:2px;}
+.char-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.stat-section{margin-bottom:16px;}
+.stat-section-title{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.stat-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.stat-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:72px;flex-shrink:0;}
+.stat-bar-wrap{flex:1;height:6px;background:var(--aged);overflow:hidden;}
+.stat-bar-fill{height:100%;transition:width 0.6s ease;}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink);width:24px;text-align:right;}
+.bar-health{background:var(--forest);}
+.bar-happiness{background:var(--gold);}
+.bar-intelligence{background:var(--sky);}
+.bar-wealth{background:var(--rust);}
+.bar-default{background:var(--muted);}
+.life-facts{border-top:1px solid var(--border);padding-top:16px;margin-top:4px;}
+.fact-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--border);}
+.fact-key{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.fact-val{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink);text-align:right;max-width:140px;}
+.game-main{display:flex;flex-direction:column;overflow:hidden;}
+.event-feed{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 140px);}
+.event-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--sepia);padding:16px 20px;animation:slideIn 0.3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(12px);}to{opacity:1;transform:translateX(0);}}
+.event-card.event-birth{border-left-color:var(--gold);}
+.event-card.event-death{border-left-color:#222;background:#f0ece4;}
+.event-card.event-positive{border-left-color:var(--forest);}
+.event-card.event-negative{border-left-color:var(--rust);}
+.event-card.event-neutral{border-left-color:var(--sky);}
+.event-card.event-milestone{border-left-color:var(--gold);background:#fdf8ee;}
+.event-card.event-decision{border-left-color:var(--sepia);background:#faf6ed;}
+.event-age-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.event-text{font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.6;color:var(--ink);}
+.event-stat-changes{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.stat-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;background:var(--aged);}
+.stat-chip.pos{color:var(--forest);}
+.stat-chip.neg{color:var(--rust);}
+.decision-panel{background:var(--ink);padding:20px 24px;border-top:2px solid var(--sepia);}
+.decision-prompt{font-family:'Playfair Display',serif;font-size:15px;color:var(--aged);margin-bottom:14px;line-height:1.5;}
+.decision-choices{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.choice-btn{padding:10px 18px;background:transparent;border:1px solid rgba(201,169,110,0.4);color:var(--sepia);font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.4;}
+.choice-btn:hover{background:rgba(201,169,110,0.15);border-color:var(--sepia);color:var(--aged);}
+.action-bar{display:flex;align-items:center;gap:12px;}
+.year-btn{padding:12px 28px;background:var(--gold);color:var(--ink);border:none;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;font-weight:500;}
+.year-btn:hover{background:var(--sepia);color:var(--paper);}
+.year-btn:disabled{opacity:0.4;cursor:default;}
+.auto-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.toggle-switch{position:relative;display:inline-block;width:36px;height:18px;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#3a3020;transition:0.2s;}
+.toggle-slider:before{content:'';position:absolute;height:12px;width:12px;left:3px;bottom:3px;background:var(--muted);transition:0.2s;}
+input:checked+.toggle-slider{background:var(--gold);}
+input:checked+.toggle-slider:before{transform:translateX(18px);background:var(--ink);}
+#screen-death{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;background:#111008;color:var(--aged);}
+#screen-death.active{display:flex;}
+.death-title{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(28px,5vw,48px);color:var(--sepia);margin-bottom:8px;text-align:center;}
+.death-subtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:40px;}
+.epitaph{max-width:560px;width:100%;background:#1a1208;border:1px solid #3a2e18;padding:36px;text-align:center;margin-bottom:32px;}
+.epitaph::before{content:'\2020';font-size:24px;color:var(--sepia);display:block;margin-bottom:16px;}
+.epitaph-name{font-family:'Playfair Display',serif;font-size:26px;color:var(--sepia);margin-bottom:4px;}
+.epitaph-dates{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:20px;}
+.epitaph-cause{font-family:'Playfair Display',serif;font-style:italic;color:var(--muted);font-size:15px;margin-bottom:20px;line-height:1.6;}
+.life-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#3a2e18;margin-bottom:20px;}
+.summary-cell{background:#1a1208;padding:12px 16px;}
+.summary-cell-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.summary-cell-val{font-family:'Playfair Display',serif;font-size:18px;color:var(--sepia);}
+.epitaph-quote{font-family:'Playfair Display',serif;font-style:italic;color:rgba(201,169,110,0.5);font-size:13px;line-height:1.7;margin-top:12px;}
+.death-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.achievement-toast{position:fixed;bottom:24px;right:24px;background:var(--ink);border:1px solid var(--gold);border-left:4px solid var(--gold);padding:14px 18px;max-width:280px;z-index:999;display:none;}
+.toast-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:4px;}
+.toast-name{font-family:'Playfair Display',serif;font-size:15px;color:var(--aged);margin-bottom:2px;}
+.toast-desc{font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);}
+.event-feed::-webkit-scrollbar{width:4px;}
+.event-feed::-webkit-scrollbar-track{background:var(--aged);}
+.event-feed::-webkit-scrollbar-thumb{background:var(--sepia);}
+@media(max-width:700px){.game-layout{grid-template-columns:1fr;}.game-sidebar{display:none;}}
 </style>
 </head>
 <body>
-<!-- TITLE SCREEN -->
+
+<!-- TITLE -->
 <div id="screen-title" class="screen active">
-  <div class="title-globe">🌍</div>
+  <div class="title-globe">&#127758;</div>
   <div class="title-main">Real Lives</div>
   <div class="title-sub">Modern Edition</div>
   <div class="title-tagline">"You might be born anyone, anywhere. Live, choose, and discover how the other half lives."</div>
   <div class="title-buttons">
-    <button class="btn btn-primary" onclick="showScreen('newlife')">⊕ Begin a New Life</button>
-    <button class="btn btn-secondary" id="btn-continue" onclick="continueSave()" style="display:none">↩ Continue Saved Life</button>
+    <button class="btn btn-primary" onclick="showScreen('newlife')">&#8853; Begin a New Life</button>
+    <button class="btn btn-secondary" id="btn-continue" onclick="continueSave()" style="display:none">&#8617; Continue Saved Life</button>
   </div>
-  <div class="title-stats">190 COUNTRIES · STATISTICALLY GROUNDED · OPEN SOURCE</div>
+  <div class="title-stats">190 COUNTRIES &middot; STATISTICALLY GROUNDED &middot; OPEN SOURCE</div>
 </div>
 
-<!-- NEW LIFE SCREEN -->
+<!-- NEW LIFE -->
 <div id="screen-newlife" class="screen">
   <div class="newlife-card">
     <div class="card-title">Begin a New Life</div>
@@ -196,12 +159,12 @@ input:checked + .toggle-slider:before { transform: translateX(18px); background:
     <div class="form-group">
       <label class="form-label">Region of Birth</label>
       <div class="region-grid">
-        <button class="region-btn" onclick="selectRegion('africa',this)"><span class="region-emoji">🌍</span>Africa</button>
-        <button class="region-btn" onclick="selectRegion('asia',this)"><span class="region-emoji">🌏</span>Asia</button>
-        <button class="region-btn" onclick="selectRegion('europe',this)"><span class="region-emoji">🏛️</span>Europe</button>
-        <button class="region-btn" onclick="selectRegion('americas',this)"><span class="region-emoji">🌎</span>Americas</button>
-        <button class="region-btn" onclick="selectRegion('oceania',this)"><span class="region-emoji">🏝️</span>Oceania</button>
-        <button class="region-btn selected" onclick="selectRegion('random',this)"><span class="region-emoji">🎲</span>Random</button>
+        <button class="region-btn" onclick="selectRegion('africa',this)"><span class="region-emoji">&#127757;</span>Africa</button>
+        <button class="region-btn" onclick="selectRegion('asia',this)"><span class="region-emoji">&#127759;</span>Asia</button>
+        <button class="region-btn" onclick="selectRegion('europe',this)"><span class="region-emoji">&#127981;</span>Europe</button>
+        <button class="region-btn" onclick="selectRegion('americas',this)"><span class="region-emoji">&#127758;</span>Americas</button>
+        <button class="region-btn" onclick="selectRegion('oceania',this)"><span class="region-emoji">&#127965;</span>Oceania</button>
+        <button class="region-btn selected" onclick="selectRegion('random',this)"><span class="region-emoji">&#127922;</span>Random</button>
       </div>
     </div>
     <div class="form-group">
@@ -229,28 +192,28 @@ input:checked + .toggle-slider:before { transform: translateX(18px); background:
       </div>
     </div>
     <div style="display:flex;gap:12px;margin-top:8px;">
-      <button class="btn btn-primary" style="flex:1" onclick="startNewLife()">✦ Be Born</button>
-      <button class="btn btn-ghost" onclick="showScreen('title')">← Back</button>
+      <button class="btn btn-primary" style="flex:1" onclick="startNewLife()">Be Born</button>
+      <button class="btn btn-ghost" onclick="showScreen('title')">&larr; Back</button>
     </div>
   </div>
 </div>
 
-<!-- GAME SCREEN -->
+<!-- GAME -->
 <div id="screen-game" class="screen">
   <div class="game-layout">
     <header class="game-header">
       <div class="game-logo">Real Lives</div>
       <div class="game-age-display"><span class="age-number" id="display-age">0</span>years old</div>
       <div class="header-actions">
-        <button class="btn btn-ghost" onclick="saveGame()" style="font-size:10px;padding:8px 14px;">💾 Save</button>
-        <button class="btn btn-ghost" onclick="showScreen('title')" style="font-size:10px;padding:8px 14px;">✕ Menu</button>
+        <button class="btn btn-ghost" onclick="saveGame()" style="font-size:10px;padding:8px 14px;">Save</button>
+        <button class="btn btn-ghost" onclick="showScreen('title')" style="font-size:10px;padding:8px 14px;">Menu</button>
       </div>
     </header>
     <aside class="game-sidebar">
       <div class="character-portrait">
-        <span class="portrait-avatar" id="sidebar-avatar">👶</span>
-        <div class="char-name" id="sidebar-name">—</div>
-        <div class="char-meta" id="sidebar-meta">—</div>
+        <span class="portrait-avatar" id="sidebar-avatar">&#128118;</span>
+        <div class="char-name" id="sidebar-name">-</div>
+        <div class="char-meta" id="sidebar-meta">-</div>
       </div>
       <div class="stat-section">
         <div class="stat-section-title">Vitals</div>
@@ -266,8 +229,8 @@ input:checked + .toggle-slider:before { transform: translateX(18px); background:
         <div class="stat-row"><span class="stat-label">Wisdom</span><div class="stat-bar-wrap"><div class="stat-bar-fill bar-default" id="bar-wisdom" style="width:0%"></div></div><span class="stat-val" id="val-wisdom">0</span></div>
       </div>
       <div class="life-facts">
-        <div class="fact-row"><span class="fact-key">Country</span><span class="fact-val" id="fact-country">—</span></div>
-        <div class="fact-row"><span class="fact-key">Born</span><span class="fact-val" id="fact-born">—</span></div>
+        <div class="fact-row"><span class="fact-key">Country</span><span class="fact-val" id="fact-country">-</span></div>
+        <div class="fact-row"><span class="fact-key">Born</span><span class="fact-val" id="fact-born">-</span></div>
         <div class="fact-row"><span class="fact-key">Education</span><span class="fact-val" id="fact-education">None</span></div>
         <div class="fact-row"><span class="fact-key">Job</span><span class="fact-val" id="fact-job">Unemployed</span></div>
         <div class="fact-row"><span class="fact-key">Relationship</span><span class="fact-val" id="fact-relationship">Single</span></div>
@@ -277,11 +240,11 @@ input:checked + .toggle-slider:before { transform: translateX(18px); background:
     </aside>
     <main class="game-main">
       <div class="event-feed" id="event-feed"></div>
-      <div class="decision-panel" id="decision-panel">
+      <div class="decision-panel">
         <div class="decision-prompt" id="decision-prompt"></div>
         <div class="decision-choices" id="decision-choices"></div>
         <div class="action-bar">
-          <button class="year-btn" id="btn-age-year" onclick="ageOneYear()">Age a Year →</button>
+          <button class="year-btn" id="btn-age-year" onclick="ageOneYear()">Age a Year &rarr;</button>
           <span class="auto-label">Auto</span>
           <label class="toggle-switch"><input type="checkbox" id="auto-toggle" onchange="toggleAuto(this)"><span class="toggle-slider"></span></label>
         </div>
@@ -290,364 +253,280 @@ input:checked + .toggle-slider:before { transform: translateX(18px); background:
   </div>
 </div>
 
-<!-- DEATH SCREEN -->
+<!-- DEATH -->
 <div id="screen-death" class="screen">
   <div class="death-title">A Life Concluded</div>
   <div class="death-subtitle">In Memoriam</div>
   <div class="epitaph">
-    <div class="epitaph-name" id="death-name">—</div>
-    <div class="epitaph-dates" id="death-dates">—</div>
-    <div class="epitaph-cause" id="death-cause">—</div>
+    <div class="epitaph-name" id="death-name">-</div>
+    <div class="epitaph-dates" id="death-dates">-</div>
+    <div class="epitaph-cause" id="death-cause">-</div>
     <div class="life-summary-grid">
-      <div class="summary-cell"><div class="summary-cell-label">Age at Death</div><div class="summary-cell-val" id="death-age">—</div></div>
-      <div class="summary-cell"><div class="summary-cell-label">Country</div><div class="summary-cell-val" id="death-country">—</div></div>
-      <div class="summary-cell"><div class="summary-cell-label">Children</div><div class="summary-cell-val" id="death-children">—</div></div>
-      <div class="summary-cell"><div class="summary-cell-label">Peak Savings</div><div class="summary-cell-val" id="death-wealth">—</div></div>
+      <div class="summary-cell"><div class="summary-cell-label">Age at Death</div><div class="summary-cell-val" id="death-age">-</div></div>
+      <div class="summary-cell"><div class="summary-cell-label">Country</div><div class="summary-cell-val" id="death-country">-</div></div>
+      <div class="summary-cell"><div class="summary-cell-label">Children</div><div class="summary-cell-val" id="death-children">-</div></div>
+      <div class="summary-cell"><div class="summary-cell-label">Peak Savings</div><div class="summary-cell-val" id="death-wealth">-</div></div>
     </div>
     <div class="epitaph-quote" id="death-quote"></div>
   </div>
   <div class="death-actions">
-    <button class="btn btn-primary" onclick="showScreen('newlife')">⊕ Begin Another Life</button>
-    <button class="btn btn-secondary" onclick="showScreen('title')">← Main Menu</button>
+    <button class="btn btn-primary" onclick="showScreen('newlife')">Begin Another Life</button>
+    <button class="btn btn-secondary" onclick="showScreen('title')">&larr; Main Menu</button>
   </div>
 </div>
 
-<!-- Achievement Toast -->
+<!-- Toast -->
 <div class="achievement-toast" id="achievement-toast">
-  <div class="toast-label" id="toast-label">🏆 Achievement Unlocked</div>
-  <div class="toast-name" id="toast-name">—</div>
-  <div class="toast-desc" id="toast-desc">—</div>
+  <div class="toast-label" id="toast-label">Achievement Unlocked</div>
+  <div class="toast-name" id="toast-name"></div>
+  <div class="toast-desc" id="toast-desc"></div>
 </div>
 <script>
-const WORLD_DATA = {
-  africa: [
-    {name:"Nigeria",code:"NG",lifeExp:54,gdpPerCap:2200,literacy:62,infantMort:68,hdi:0.54,urban:52},
-    {name:"Ethiopia",code:"ET",lifeExp:67,gdpPerCap:900,literacy:52,infantMort:38,hdi:0.49,urban:22},
-    {name:"Kenya",code:"KE",lifeExp:67,gdpPerCap:1800,literacy:82,infantMort:31,hdi:0.60,urban:28},
-    {name:"South Africa",code:"ZA",lifeExp:64,gdpPerCap:6000,literacy:95,infantMort:27,hdi:0.71,urban:67},
-    {name:"Egypt",code:"EG",lifeExp:72,gdpPerCap:3500,literacy:76,infantMort:18,hdi:0.73,urban:43},
-    {name:"Ghana",code:"GH",lifeExp:64,gdpPerCap:2300,literacy:80,infantMort:35,hdi:0.63,urban:57},
-    {name:"Tanzania",code:"TZ",lifeExp:67,gdpPerCap:1100,literacy:80,infantMort:38,hdi:0.58,urban:37},
-    {name:"Somalia",code:"SO",lifeExp:57,gdpPerCap:450,literacy:38,infantMort:72,hdi:0.36,urban:46},
-    {name:"Morocco",code:"MA",lifeExp:76,gdpPerCap:3600,literacy:74,infantMort:16,hdi:0.68,urban:64},
-    {name:"DR Congo",code:"CD",lifeExp:60,gdpPerCap:600,literacy:77,infantMort:60,hdi:0.48,urban:46},
-  ],
-  asia: [
-    {name:"China",code:"CN",lifeExp:77,gdpPerCap:11000,literacy:97,infantMort:7,hdi:0.76,urban:65},
-    {name:"India",code:"IN",lifeExp:70,gdpPerCap:2100,literacy:74,infantMort:27,hdi:0.64,urban:35},
-    {name:"Japan",code:"JP",lifeExp:84,gdpPerCap:40000,literacy:99,infantMort:2,hdi:0.92,urban:92},
-    {name:"Indonesia",code:"ID",lifeExp:72,gdpPerCap:4100,literacy:96,infantMort:20,hdi:0.71,urban:57},
-    {name:"Pakistan",code:"PK",lifeExp:67,gdpPerCap:1450,literacy:58,infantMort:54,hdi:0.56,urban:37},
-    {name:"Bangladesh",code:"BD",lifeExp:73,gdpPerCap:1850,literacy:75,infantMort:24,hdi:0.63,urban:39},
-    {name:"Vietnam",code:"VN",lifeExp:75,gdpPerCap:2700,literacy:95,infantMort:16,hdi:0.70,urban:38},
-    {name:"Philippines",code:"PH",lifeExp:71,gdpPerCap:3500,literacy:98,infantMort:22,hdi:0.70,urban:47},
-    {name:"Thailand",code:"TH",lifeExp:77,gdpPerCap:7300,literacy:95,infantMort:7,hdi:0.78,urban:51},
-    {name:"Afghanistan",code:"AF",lifeExp:64,gdpPerCap:500,literacy:43,infantMort:47,hdi:0.48,urban:26},
-    {name:"Saudi Arabia",code:"SA",lifeExp:75,gdpPerCap:22000,literacy:95,infantMort:6,hdi:0.85,urban:84},
-    {name:"South Korea",code:"KR",lifeExp:83,gdpPerCap:31000,literacy:99,infantMort:3,hdi:0.92,urban:82},
-  ],
-  europe: [
-    {name:"Germany",code:"DE",lifeExp:81,gdpPerCap:47000,literacy:99,infantMort:3,hdi:0.95,urban:78},
-    {name:"France",code:"FR",lifeExp:83,gdpPerCap:40000,literacy:99,infantMort:3,hdi:0.90,urban:81},
-    {name:"United Kingdom",code:"GB",lifeExp:81,gdpPerCap:42000,literacy:99,infantMort:4,hdi:0.93,urban:84},
-    {name:"Russia",code:"RU",lifeExp:72,gdpPerCap:11000,literacy:99,infantMort:6,hdi:0.82,urban:75},
-    {name:"Italy",code:"IT",lifeExp:83,gdpPerCap:32000,literacy:99,infantMort:3,hdi:0.89,urban:71},
-    {name:"Spain",code:"ES",lifeExp:83,gdpPerCap:30000,literacy:99,infantMort:3,hdi:0.90,urban:80},
-    {name:"Poland",code:"PL",lifeExp:78,gdpPerCap:15000,literacy:99,infantMort:4,hdi:0.88,urban:60},
-    {name:"Ukraine",code:"UA",lifeExp:72,gdpPerCap:3500,literacy:99,infantMort:7,hdi:0.77,urban:69},
-    {name:"Sweden",code:"SE",lifeExp:83,gdpPerCap:56000,literacy:99,infantMort:2,hdi:0.95,urban:88},
-    {name:"Greece",code:"GR",lifeExp:82,gdpPerCap:18000,literacy:98,infantMort:4,hdi:0.89,urban:80},
-  ],
-  americas: [
-    {name:"United States",code:"US",lifeExp:79,gdpPerCap:63000,literacy:99,infantMort:5,hdi:0.93,urban:83},
-    {name:"Brazil",code:"BR",lifeExp:76,gdpPerCap:8700,literacy:93,infantMort:13,hdi:0.76,urban:87},
-    {name:"Mexico",code:"MX",lifeExp:75,gdpPerCap:10000,literacy:95,infantMort:11,hdi:0.78,urban:80},
-    {name:"Colombia",code:"CO",lifeExp:77,gdpPerCap:6400,literacy:95,infantMort:12,hdi:0.77,urban:81},
-    {name:"Argentina",code:"AR",lifeExp:77,gdpPerCap:10000,literacy:99,infantMort:8,hdi:0.84,urban:92},
-    {name:"Canada",code:"CA",lifeExp:82,gdpPerCap:47000,literacy:99,infantMort:4,hdi:0.93,urban:82},
-    {name:"Peru",code:"PE",lifeExp:76,gdpPerCap:6600,literacy:95,infantMort:14,hdi:0.78,urban:78},
-    {name:"Cuba",code:"CU",lifeExp:79,gdpPerCap:6800,literacy:99,infantMort:4,hdi:0.78,urban:77},
-    {name:"Haiti",code:"HT",lifeExp:64,gdpPerCap:1300,literacy:61,infantMort:43,hdi:0.51,urban:57},
-    {name:"Bolivia",code:"BO",lifeExp:71,gdpPerCap:3500,literacy:93,infantMort:24,hdi:0.70,urban:70},
-  ],
-  oceania: [
-    {name:"Australia",code:"AU",lifeExp:83,gdpPerCap:55000,literacy:99,infantMort:3,hdi:0.94,urban:86},
-    {name:"New Zealand",code:"NZ",lifeExp:82,gdpPerCap:42000,literacy:99,infantMort:4,hdi:0.93,urban:87},
-    {name:"Papua New Guinea",code:"PG",lifeExp:64,gdpPerCap:2700,literacy:64,infantMort:33,hdi:0.56,urban:13},
-    {name:"Fiji",code:"FJ",lifeExp:70,gdpPerCap:5200,literacy:94,infantMort:20,hdi:0.73,urban:57},
-  ]
-};
-const MALE_NAMES={NG:["Chukwuemeka","Babatunde","Oluwaseun","Emeka","Tunde","Chidi"],ET:["Abebe","Dawit","Girma","Haile","Tesfaye","Bekele"],KE:["Kipchoge","Mwangi","Kamau","Njoroge","Kariuki","Otieno"],ZA:["Sipho","Thabo","Mandla","Lungelo","Bongani","Khaya"],EG:["Mohamed","Ahmed","Khaled","Omar","Hassan","Youssef"],GH:["Kwame","Kofi","Kojo","Yaw","Kwesi","Fiifi"],TZ:["Juma","Hassan","Musa","Ibrahim","Baraka","Salim"],SO:["Abdi","Mohamed","Hassan","Ahmed","Omar","Farah"],MA:["Mohammed","Youssef","Omar","Hamza","Amine","Mehdi"],CD:["Dieudonne","Fiston","Gloire","Patient","Cedric","Blaise"],CN:["Wei","Lei","Hao","Jian","Ming","Cheng"],IN:["Arjun","Rahul","Vikram","Suresh","Deepak","Rohan"],JP:["Haruto","Sota","Hiroshi","Yuki","Kenji","Akira"],ID:["Ahmad","Muhammad","Rizky","Andi","Budi","Fajar"],PK:["Muhammad","Ali","Hassan","Omar","Bilal","Usman"],BD:["Rahim","Karim","Hasan","Islam","Ali","Mia"],VN:["Minh","Tuan","Huy","Nam","Duc","Long"],PH:["Jose","Juan","Carlo","Miguel","Rafael","Marco"],TH:["Somchai","Somsak","Prasert","Wichai","Pichit","Surasak"],AF:["Ahmad","Mohammad","Hamid","Khalid","Tariq","Nawab"],SA:["Mohammed","Abdullah","Khalid","Sultan","Fahad","Faisal"],KR:["Minjun","Seonjun","Junho","Jiwoo","Siwoo","Hyunwoo"],DE:["Lukas","Jonas","Leon","Finn","Paul","Felix"],FR:["Lucas","Hugo","Tom","Louis","Theo","Jules"],GB:["Oliver","George","Harry","Jack","Charlie","Noah"],RU:["Aleksandr","Dmitri","Ivan","Sergei","Nikolai","Andrei"],IT:["Leonardo","Matteo","Marco","Luca","Francesco","Lorenzo"],ES:["Alejandro","Pablo","Daniel","Carlos","David","Miguel"],PL:["Jakub","Kacper","Mateusz","Michal","Bartosz","Piotr"],UA:["Oleksandr","Dmytro","Ivan","Mykola","Andriy","Taras"],SE:["Lucas","William","Oscar","Liam","Noah","Elias"],GR:["Nikos","Giorgos","Kostas","Dimitris","Yannis","Petros"],US:["Liam","Noah","Oliver","Elijah","James","William"],BR:["Gabriel","Arthur","Davi","Pedro","Matheus","Lucas"],MX:["Santiago","Mateo","Sebastian","Emiliano","Diego","Daniel"],CO:["Santiago","Sebastian","Samuel","Daniel","Juan","Mateo"],AR:["Lautaro","Tomas","Mateo","Santiago","Facundo","Nicolas"],CA:["Liam","Noah","Oliver","Ethan","Lucas","Logan"],PE:["Diego","Sebastian","Mateo","Alejandro","Rodrigo","Piero"],CU:["Alejandro","Roberto","Ernesto","Luis","Miguel","Carlos"],HT:["Jean","Pierre","Louis","Joseph","Paul","Edouard"],BO:["Juan","Carlos","Miguel","Luis","Mario","Jorge"],AU:["Oliver","Jack","William","Noah","Thomas","James"],NZ:["Oliver","Jack","Noah","Liam","William","Mason"],PG:["Peter","Paul","Michael","John","Thomas","David"],FJ:["Josaia","Timoci","Jone","Samisoni","Tevita","Ratu"]};
-const FEMALE_NAMES={NG:["Chioma","Adaeze","Ngozi","Amaka","Funmi","Tope"],ET:["Tigist","Hana","Selam","Meron","Sara","Rahel"],KE:["Wanjiru","Akinyi","Chebet","Njeri","Wambui","Adhiambo"],ZA:["Nomvula","Nandi","Zanele","Thandi","Lindiwe","Bongiwe"],EG:["Fatma","Aisha","Nour","Dina","Sara","Mariam"],GH:["Ama","Akosua","Abena","Adwoa","Afia","Efua"],TZ:["Amina","Fatuma","Zuhura","Halima","Rehema","Safia"],SO:["Faadumo","Hodan","Safia","Amina","Halima","Ifrah"],MA:["Fatima","Khadija","Zineb","Laila","Nadia","Sara"],CD:["Grace","Esperance","Joie","Merveille","Patience","Claire"],CN:["Fang","Xiu","Mei","Na","Ling","Yan"],IN:["Priya","Anjali","Pooja","Sunita","Kavita","Divya"],JP:["Hina","Yui","Mitsuki","Sakura","Aoi","Yuna"],ID:["Siti","Nur","Dewi","Rina","Indah","Putri"],PK:["Fatima","Ayesha","Zainab","Maryam","Sana","Nadia"],BD:["Fatema","Sadia","Nusrat","Nasrin","Shirin","Lina"],VN:["Lan","Mai","Hoa","Linh","Thuy","Huong"],PH:["Maria","Ana","Rosa","Elena","Carmen","Gloria"],TH:["Nong","Ning","Ying","Malee","Ratana","Sukanya"],AF:["Fatima","Maryam","Zainab","Hadia","Sana","Zahra"],SA:["Fatima","Maryam","Nora","Hessa","Maha","Reem"],KR:["Soyeon","Jiwon","Jiyoon","Seoyeon","Chaewon","Yuna"],DE:["Emma","Mia","Lena","Hannah","Leonie","Emilia"],FR:["Emma","Jade","Louise","Lea","Manon","Clara"],GB:["Olivia","Amelia","Ava","Isla","Emily","Sophie"],RU:["Anastasia","Maria","Daria","Ekaterina","Olga","Elena"],IT:["Sofia","Giulia","Aurora","Emma","Beatrice","Alice"],ES:["Lucia","Sofia","Maria","Martina","Paula","Valeria"],PL:["Julia","Maja","Zuzanna","Aleksandra","Natalia","Wiktoria"],UA:["Sofia","Darya","Anastasia","Yulia","Olha","Natalia"],SE:["Alice","Elsa","Emma","Maja","Ella","Astrid"],GR:["Maria","Elena","Anna","Sofia","Georgia","Christina"],US:["Olivia","Emma","Ava","Charlotte","Sophia","Amelia"],BR:["Maria","Ana","Julia","Beatriz","Larissa","Fernanda"],MX:["Valentina","Sofia","Isabella","Valeria","Camila","Daniela"],CO:["Valentina","Isabella","Sofia","Mariana","Juliana","Camila"],AR:["Valentina","Sofia","Florencia","Camila","Martina","Luciana"],CA:["Olivia","Emma","Charlotte","Ava","Sophia","Isabella"],PE:["Valentina","Sofia","Isabella","Camila","Daniela","Luciana"],CU:["Maria","Caridad","Esperanza","Rosa","Carmen","Ana"],HT:["Marie","Claudette","Bernadette","Rosalie","Odette","Simone"],BO:["Maria","Rosa","Carmen","Gabriela","Alejandra","Lucia"],AU:["Olivia","Charlotte","Amelia","Ava","Grace","Sophie"],NZ:["Olivia","Charlotte","Isla","Amelia","Grace","Ruby"],PG:["Mary","Grace","Ruth","Sarah","Miriam","Elizabeth"],FJ:["Mere","Seruwaia","Litia","Makereta","Vilimaina","Asena"]};
+var WORLD_DATA={africa:[{name:"Nigeria",code:"NG",lifeExp:54,gdpPerCap:2200,literacy:62,infantMort:68,hdi:0.54},{name:"Ethiopia",code:"ET",lifeExp:67,gdpPerCap:900,literacy:52,infantMort:38,hdi:0.49},{name:"Kenya",code:"KE",lifeExp:67,gdpPerCap:1800,literacy:82,infantMort:31,hdi:0.60},{name:"South Africa",code:"ZA",lifeExp:64,gdpPerCap:6000,literacy:95,infantMort:27,hdi:0.71},{name:"Egypt",code:"EG",lifeExp:72,gdpPerCap:3500,literacy:76,infantMort:18,hdi:0.73},{name:"Ghana",code:"GH",lifeExp:64,gdpPerCap:2300,literacy:80,infantMort:35,hdi:0.63},{name:"Tanzania",code:"TZ",lifeExp:67,gdpPerCap:1100,literacy:80,infantMort:38,hdi:0.58},{name:"Somalia",code:"SO",lifeExp:57,gdpPerCap:450,literacy:38,infantMort:72,hdi:0.36},{name:"Morocco",code:"MA",lifeExp:76,gdpPerCap:3600,literacy:74,infantMort:16,hdi:0.68},{name:"DR Congo",code:"CD",lifeExp:60,gdpPerCap:600,literacy:77,infantMort:60,hdi:0.48}],asia:[{name:"China",code:"CN",lifeExp:77,gdpPerCap:11000,literacy:97,infantMort:7,hdi:0.76},{name:"India",code:"IN",lifeExp:70,gdpPerCap:2100,literacy:74,infantMort:27,hdi:0.64},{name:"Japan",code:"JP",lifeExp:84,gdpPerCap:40000,literacy:99,infantMort:2,hdi:0.92},{name:"Indonesia",code:"ID",lifeExp:72,gdpPerCap:4100,literacy:96,infantMort:20,hdi:0.71},{name:"Pakistan",code:"PK",lifeExp:67,gdpPerCap:1450,literacy:58,infantMort:54,hdi:0.56},{name:"Bangladesh",code:"BD",lifeExp:73,gdpPerCap:1850,literacy:75,infantMort:24,hdi:0.63},{name:"Vietnam",code:"VN",lifeExp:75,gdpPerCap:2700,literacy:95,infantMort:16,hdi:0.70},{name:"Philippines",code:"PH",lifeExp:71,gdpPerCap:3500,literacy:98,infantMort:22,hdi:0.70},{name:"Thailand",code:"TH",lifeExp:77,gdpPerCap:7300,literacy:95,infantMort:7,hdi:0.78},{name:"Afghanistan",code:"AF",lifeExp:64,gdpPerCap:500,literacy:43,infantMort:47,hdi:0.48},{name:"Saudi Arabia",code:"SA",lifeExp:75,gdpPerCap:22000,literacy:95,infantMort:6,hdi:0.85},{name:"South Korea",code:"KR",lifeExp:83,gdpPerCap:31000,literacy:99,infantMort:3,hdi:0.92}],europe:[{name:"Germany",code:"DE",lifeExp:81,gdpPerCap:47000,literacy:99,infantMort:3,hdi:0.95},{name:"France",code:"FR",lifeExp:83,gdpPerCap:40000,literacy:99,infantMort:3,hdi:0.90},{name:"United Kingdom",code:"GB",lifeExp:81,gdpPerCap:42000,literacy:99,infantMort:4,hdi:0.93},{name:"Russia",code:"RU",lifeExp:72,gdpPerCap:11000,literacy:99,infantMort:6,hdi:0.82},{name:"Italy",code:"IT",lifeExp:83,gdpPerCap:32000,literacy:99,infantMort:3,hdi:0.89},{name:"Spain",code:"ES",lifeExp:83,gdpPerCap:30000,literacy:99,infantMort:3,hdi:0.90},{name:"Poland",code:"PL",lifeExp:78,gdpPerCap:15000,literacy:99,infantMort:4,hdi:0.88},{name:"Ukraine",code:"UA",lifeExp:72,gdpPerCap:3500,literacy:99,infantMort:7,hdi:0.77},{name:"Sweden",code:"SE",lifeExp:83,gdpPerCap:56000,literacy:99,infantMort:2,hdi:0.95},{name:"Greece",code:"GR",lifeExp:82,gdpPerCap:18000,literacy:98,infantMort:4,hdi:0.89}],americas:[{name:"United States",code:"US",lifeExp:79,gdpPerCap:63000,literacy:99,infantMort:5,hdi:0.93},{name:"Brazil",code:"BR",lifeExp:76,gdpPerCap:8700,literacy:93,infantMort:13,hdi:0.76},{name:"Mexico",code:"MX",lifeExp:75,gdpPerCap:10000,literacy:95,infantMort:11,hdi:0.78},{name:"Colombia",code:"CO",lifeExp:77,gdpPerCap:6400,literacy:95,infantMort:12,hdi:0.77},{name:"Argentina",code:"AR",lifeExp:77,gdpPerCap:10000,literacy:99,infantMort:8,hdi:0.84},{name:"Canada",code:"CA",lifeExp:82,gdpPerCap:47000,literacy:99,infantMort:4,hdi:0.93},{name:"Peru",code:"PE",lifeExp:76,gdpPerCap:6600,literacy:95,infantMort:14,hdi:0.78},{name:"Cuba",code:"CU",lifeExp:79,gdpPerCap:6800,literacy:99,infantMort:4,hdi:0.78},{name:"Haiti",code:"HT",lifeExp:64,gdpPerCap:1300,literacy:61,infantMort:43,hdi:0.51},{name:"Bolivia",code:"BO",lifeExp:71,gdpPerCap:3500,literacy:93,infantMort:24,hdi:0.70}],oceania:[{name:"Australia",code:"AU",lifeExp:83,gdpPerCap:55000,literacy:99,infantMort:3,hdi:0.94},{name:"New Zealand",code:"NZ",lifeExp:82,gdpPerCap:42000,literacy:99,infantMort:4,hdi:0.93},{name:"Papua New Guinea",code:"PG",lifeExp:64,gdpPerCap:2700,literacy:64,infantMort:33,hdi:0.56},{name:"Fiji",code:"FJ",lifeExp:70,gdpPerCap:5200,literacy:94,infantMort:20,hdi:0.73}]};
+var MN={NG:["Chukwuemeka","Babatunde","Emeka","Tunde","Chidi","Seun"],ET:["Abebe","Dawit","Girma","Haile","Tesfaye","Bekele"],KE:["Kipchoge","Mwangi","Kamau","Njoroge","Kariuki","Otieno"],ZA:["Sipho","Thabo","Mandla","Lungelo","Bongani","Khaya"],EG:["Mohamed","Ahmed","Khaled","Omar","Hassan","Youssef"],GH:["Kwame","Kofi","Kojo","Yaw","Kwesi","Fiifi"],TZ:["Juma","Hassan","Musa","Ibrahim","Baraka","Salim"],SO:["Abdi","Mohamed","Hassan","Ahmed","Omar","Farah"],MA:["Mohammed","Youssef","Omar","Hamza","Amine","Mehdi"],CD:["Dieudonne","Fiston","Gloire","Patient","Cedric","Blaise"],CN:["Wei","Lei","Hao","Jian","Ming","Cheng"],IN:["Arjun","Rahul","Vikram","Suresh","Deepak","Rohan"],JP:["Haruto","Sota","Hiroshi","Yuki","Kenji","Akira"],ID:["Ahmad","Muhammad","Rizky","Andi","Budi","Fajar"],PK:["Muhammad","Ali","Hassan","Omar","Bilal","Usman"],BD:["Rahim","Karim","Hasan","Islam","Ali","Mia"],VN:["Minh","Tuan","Huy","Nam","Duc","Long"],PH:["Jose","Juan","Carlo","Miguel","Rafael","Marco"],TH:["Somchai","Somsak","Prasert","Wichai","Pichit","Surasak"],AF:["Ahmad","Mohammad","Hamid","Khalid","Tariq","Nawab"],SA:["Mohammed","Abdullah","Khalid","Sultan","Fahad","Faisal"],KR:["Minjun","Seonjun","Junho","Jiwoo","Siwoo","Hyunwoo"],DE:["Lukas","Jonas","Leon","Finn","Paul","Felix"],FR:["Lucas","Hugo","Tom","Louis","Theo","Jules"],GB:["Oliver","George","Harry","Jack","Charlie","Noah"],RU:["Aleksandr","Dmitri","Ivan","Sergei","Nikolai","Andrei"],IT:["Leonardo","Matteo","Marco","Luca","Francesco","Lorenzo"],ES:["Alejandro","Pablo","Daniel","Carlos","David","Miguel"],PL:["Jakub","Kacper","Mateusz","Michal","Bartosz","Piotr"],UA:["Oleksandr","Dmytro","Ivan","Mykola","Andriy","Taras"],SE:["Lucas","William","Oscar","Liam","Noah","Elias"],GR:["Nikos","Giorgos","Kostas","Dimitris","Yannis","Petros"],US:["Liam","Noah","Oliver","Elijah","James","William"],BR:["Gabriel","Arthur","Davi","Pedro","Matheus","Lucas"],MX:["Santiago","Mateo","Sebastian","Emiliano","Diego","Daniel"],CO:["Santiago","Sebastian","Samuel","Daniel","Juan","Mateo"],AR:["Lautaro","Tomas","Mateo","Santiago","Facundo","Nicolas"],CA:["Liam","Noah","Oliver","Ethan","Lucas","Logan"],PE:["Diego","Sebastian","Mateo","Alejandro","Rodrigo","Piero"],CU:["Alejandro","Roberto","Ernesto","Luis","Miguel","Carlos"],HT:["Jean","Pierre","Louis","Joseph","Paul","Edouard"],BO:["Juan","Carlos","Miguel","Luis","Mario","Jorge"],AU:["Oliver","Jack","William","Noah","Thomas","James"],NZ:["Oliver","Jack","Noah","Liam","William","Mason"],PG:["Peter","Paul","Michael","John","Thomas","David"],FJ:["Josaia","Timoci","Jone","Samisoni","Tevita","Ratu"]};
+var FN={NG:["Chioma","Adaeze","Ngozi","Amaka","Funmi","Tope"],ET:["Tigist","Hana","Selam","Meron","Sara","Rahel"],KE:["Wanjiru","Akinyi","Chebet","Njeri","Wambui","Adhiambo"],ZA:["Nomvula","Nandi","Zanele","Thandi","Lindiwe","Bongiwe"],EG:["Fatma","Aisha","Nour","Dina","Sara","Mariam"],GH:["Ama","Akosua","Abena","Adwoa","Afia","Efua"],TZ:["Amina","Fatuma","Zuhura","Halima","Rehema","Safia"],SO:["Faadumo","Hodan","Safia","Amina","Halima","Ifrah"],MA:["Fatima","Khadija","Zineb","Laila","Nadia","Sara"],CD:["Grace","Esperance","Joie","Merveille","Patience","Claire"],CN:["Fang","Xiu","Mei","Na","Ling","Yan"],IN:["Priya","Anjali","Pooja","Sunita","Kavita","Divya"],JP:["Hina","Yui","Mitsuki","Sakura","Aoi","Yuna"],ID:["Siti","Nur","Dewi","Rina","Indah","Putri"],PK:["Fatima","Ayesha","Zainab","Maryam","Sana","Nadia"],BD:["Fatema","Sadia","Nusrat","Nasrin","Shirin","Lina"],VN:["Lan","Mai","Hoa","Linh","Thuy","Huong"],PH:["Maria","Ana","Rosa","Elena","Carmen","Gloria"],TH:["Nong","Ning","Ying","Malee","Ratana","Sukanya"],AF:["Fatima","Maryam","Zainab","Hadia","Sana","Zahra"],SA:["Fatima","Maryam","Nora","Hessa","Maha","Reem"],KR:["Soyeon","Jiwon","Jiyoon","Seoyeon","Chaewon","Yuna"],DE:["Emma","Mia","Lena","Hannah","Leonie","Emilia"],FR:["Emma","Jade","Louise","Lea","Manon","Clara"],GB:["Olivia","Amelia","Ava","Isla","Emily","Sophie"],RU:["Anastasia","Maria","Daria","Ekaterina","Olga","Elena"],IT:["Sofia","Giulia","Aurora","Emma","Beatrice","Alice"],ES:["Lucia","Sofia","Maria","Martina","Paula","Valeria"],PL:["Julia","Maja","Zuzanna","Aleksandra","Natalia","Wiktoria"],UA:["Sofia","Darya","Anastasia","Yulia","Olha","Natalia"],SE:["Alice","Elsa","Emma","Maja","Ella","Astrid"],GR:["Maria","Elena","Anna","Sofia","Georgia","Christina"],US:["Olivia","Emma","Ava","Charlotte","Sophia","Amelia"],BR:["Maria","Ana","Julia","Beatriz","Larissa","Fernanda"],MX:["Valentina","Sofia","Isabella","Valeria","Camila","Daniela"],CO:["Valentina","Isabella","Sofia","Mariana","Juliana","Camila"],AR:["Valentina","Sofia","Florencia","Camila","Martina","Luciana"],CA:["Olivia","Emma","Charlotte","Ava","Sophia","Isabella"],PE:["Valentina","Sofia","Isabella","Camila","Daniela","Luciana"],CU:["Maria","Caridad","Esperanza","Rosa","Carmen","Ana"],HT:["Marie","Claudette","Bernadette","Rosalie","Odette","Simone"],BO:["Maria","Rosa","Carmen","Gabriela","Alejandra","Lucia"],AU:["Olivia","Charlotte","Amelia","Ava","Grace","Sophie"],NZ:["Olivia","Charlotte","Isla","Amelia","Grace","Ruby"],PG:["Mary","Grace","Ruth","Sarah","Miriam","Elizabeth"],FJ:["Mere","Seruwaia","Litia","Makereta","Vilimaina","Asena"]};
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
-function clamp(v,min=0,max=100){return Math.min(max,Math.max(min,v));}
-function getJobsByCountry(co){
-  const u=['teacher','shopkeeper','government worker','driver','trader','mechanic'];
-  if(co.gdpPerCap>30000)return[...u,'engineer','nurse','accountant','software developer','lawyer','doctor'];
-  if(co.gdpPerCap>10000)return[...u,'factory worker','nurse','salesperson','technician'];
-  if(co.gdpPerCap>3000)return[...u,'factory worker','security guard','domestic worker','market vendor','farmer'];
-  return[...u,'farmer','domestic worker','day labourer','fisherman','herder','market vendor'];
-}
-function getAvatar(c){
-  if(c.age<3)return'👶';if(c.age<13)return c.gender==='male'?'👦':'👧';
-  if(c.age<20)return c.gender==='male'?'🧑':'👩';if(c.age<40)return c.gender==='male'?'👨':'👩';
-  if(c.age<65)return c.gender==='male'?'🧔':'👩';return c.gender==='male'?'👴':'👵';
-}
-function getLifeExpectancy(country,era){
-  let b=country.lifeExp;
-  if(era==='1950')b=Math.max(b-20,35);else if(era==='1970')b=Math.max(b-12,42);else if(era==='1990')b=Math.max(b-5,50);
-  return b;
-}
-function shouldDie(c,co,era){
-  if(c.health<=0)return true;
-  const le=getLifeExpectancy(co,era);
-  if(c.age<1)return Math.random()<co.infantMort/1000*5;
-  if(c.age>le){const ex=c.age-le;return Math.random()<0.06+ex*0.04;}
-  if(c.age>le*0.9)return Math.random()<0.02;
-  return false;
-}
-function getCauseOfDeath(c,co){
-  if(c.health<=0){
-    if(c.age<5)return'infant illness';
-    if(c.age<20)return pick(['a serious illness','injuries from an accident','malnutrition']);
-    if(c.age<50)return pick(['a serious illness','complications from injury','disease']);
-    return pick(['heart failure','cancer','organ failure','stroke']);
-  }
-  const causes=[];
-  if(c.age>60)causes.push(...['heart disease','cancer','stroke','pneumonia','natural causes']);
-  if(co.infantMort>40)causes.push('tropical disease');
-  if(c.age>80)causes.push('old age','old age','old age');
-  return pick(causes.length?causes:['natural causes']);
-}
-const EVENTS={
-  childhood:[
-    {id:'school_start',text:(c,co)=>`At age ${c.age}, ${c.firstName} started primary school in ${co.name}. The ${co.literacy<60?'crowded, under-resourced':'modest'} classroom had ${Math.floor(20+Math.random()*30)} students.`,type:'neutral',condition:c=>c.age===6&&c.education==='None',statChanges:{intelligence:2,happiness:1},weight:5,milestone:true,effect:(c)=>{c.education='Primary School';}},
-    {id:'sickness_child',text:(c,co)=>`${c.firstName} fell ill with ${pick(['a fever','malaria','typhoid','a respiratory infection'])}. ${co.gdpPerCap<2000?'Medical care was hard to find.':'Treatment was sought from a local clinic.'}`,type:'negative',condition:c=>c.age>3&&c.age<12&&c.health>20,statChanges:{health:-(rand(5,15))},weight:co=>co.infantMort/10},
-    {id:'friend',text:(c,co)=>`${c.firstName} made a close friend at school — a ${c.gender==='male'?'boy':'girl'} who lived nearby.`,type:'positive',condition:c=>c.age>=6&&c.age<=14,statChanges:{happiness:5},weight:2},
-    {id:'parents_fight',text:(c,co)=>`${c.firstName}'s parents argued bitterly for weeks. The tension at home made ${c.firstName} anxious and withdrawn.`,type:'negative',condition:c=>c.age>4&&c.age<16,statChanges:{happiness:-6,wisdom:2},weight:1.5},
-    {id:'natural_disaster',text:(c,co)=>`A ${pick(['flood','drought','earthquake','cyclone'])} struck ${co.name}. ${c.firstName}'s family lost some possessions but survived.`,type:'negative',condition:c=>true,statChanges:{wealth:-(rand(3,15)),happiness:-8,wisdom:3},weight:co=>co.hdi<0.6?2:0.5},
-    {id:'book',text:(c,co)=>`${c.firstName} discovered a love of reading after finding an old ${pick(['history book','novel','science textbook','atlas'])} at school.`,type:'positive',condition:c=>c.age>=7&&c.age<=14,statChanges:{intelligence:4,happiness:3},weight:co=>co.literacy/40},
-  ],
-  teen:[
-    {id:'secondary_school',text:(c,co)=>`${c.firstName} enrolled in secondary school. ${co.literacy<60?'Only about half of children in '+co.name+' make it this far.':'This was the expected next step.'}`,type:'milestone',condition:c=>c.age===12&&c.education==='Primary School',statChanges:{intelligence:3},weight:4,effect:(c)=>{c.education='Secondary School';}},
-    {id:'dropout',text:(c,co)=>`Financial pressures forced ${c.firstName} to drop out of school to help support the family.`,type:'negative',condition:c=>c.age>=13&&c.age<=17&&c.wealth<20&&Math.random()<0.3,statChanges:{happiness:-10,intelligence:-2,wealth:5},weight:co=>co.gdpPerCap<2000?2:0.3,effect:(c)=>{c.education='Dropped out';}},
-    {id:'first_romance',text:(c,co)=>`${c.firstName} experienced their first romance — a ${c.gender==='male'?'girl':'boy'} from the ${pick(['neighbourhood','school','market'])} caught their eye.`,type:'positive',condition:c=>c.age>=14&&c.age<=18&&c.relationship==='Single',statChanges:{happiness:8},weight:2},
-    {id:'war',text:(c,co)=>`Armed conflict broke out in the region. ${c.firstName}'s family stayed indoors for weeks, listening to distant gunfire.`,type:'negative',condition:c=>true,statChanges:{health:-(rand(5,20)),happiness:-15,wisdom:5},weight:co=>co.hdi<0.5?2:0.3},
-    {id:'sport_success',text:(c,co)=>`${c.firstName} showed real talent in ${pick(['football','athletics','wrestling','swimming','cricket'])} and was selected for a local team.`,type:'positive',condition:c=>c.athletic>50,statChanges:{happiness:10,athletic:5,health:5},weight:1.5},
-  ],
-  adult_early:[
-    {id:'university',text:(c,co)=>`${c.firstName} was accepted into university — a ${co.hdi>0.8?'common':'rare'} achievement in ${co.name}.`,type:'milestone',condition:c=>c.age>=18&&c.age<=22&&c.education==='Secondary School'&&c.intelligence>55,statChanges:{intelligence:8,happiness:5,wealth:-15},weight:3,effect:(c)=>{c.education='University';}},
-    {id:'first_job',text:(c,co)=>`${c.firstName} got their first job — working as a ${pick(getJobsByCountry(co))}.`,type:'positive',condition:c=>c.age>=18&&c.age<=28&&c.job==='Unemployed',statChanges:{wealth:10,happiness:6},weight:3,effect:(c,co)=>{c.job=pick(getJobsByCountry(co));c.savings+=co.gdpPerCap/24;}},
-    {id:'marriage',text:(c,co)=>`${c.firstName} married in a ${pick(['small','modest','joyful','traditional'])} ceremony attended by family and friends.`,type:'milestone',condition:c=>c.age>=20&&c.age<=35&&c.relationship==='Single',statChanges:{happiness:12,wealth:-8},weight:2,effect:(c)=>{c.relationship='Married';}},
-    {id:'child_born',text:(c,co)=>`${c.firstName}'s ${c.children===0?'first':'next'} child was born. A ${pick(['boy','girl'])}, healthy and strong.`,type:'positive',condition:c=>c.age>=20&&c.relationship==='Married'&&c.children<6,statChanges:{happiness:10,wealth:-5},weight:2.5,effect:(c)=>{c.children++;}},
-    {id:'job_loss',text:(c,co)=>`${c.firstName} was laid off from work. ${co.gdpPerCap>10000?'Unemployment benefits helped somewhat.':'There was no safety net.'}`,type:'negative',condition:c=>c.job!=='Unemployed',statChanges:{happiness:-12,wealth:-10},weight:1,effect:(c)=>{c.job='Unemployed';}},
-    {id:'promotion',text:(c,co)=>`Hard work paid off — ${c.firstName} received a promotion and a significant pay raise.`,type:'positive',condition:c=>c.job!=='Unemployed'&&c.intelligence>50,statChanges:{wealth:15,happiness:8},weight:1.5},
-    {id:'divorce',text:(c,co)=>`After years of tension, ${c.firstName}'s marriage ended in divorce. The toll was heavy.`,type:'negative',condition:c=>c.relationship==='Married'&&c.happiness<40,statChanges:{happiness:-15,wealth:-20},weight:1,effect:(c)=>{c.relationship='Divorced';}},
-    {id:'corruption',text:(c,co)=>`${c.firstName} was asked to pay a bribe to a government official.`,type:'negative',condition:c=>true,statChanges:{happiness:-5,wealth:-5,wisdom:3},weight:co=>co.hdi<0.65?2:0.3},
-  ],
-  adult_mid:[
-    {id:'health_crisis',text:(c,co)=>`${c.firstName} was diagnosed with ${pick(['diabetes','hypertension','a heart condition','cancer'])}. ${co.gdpPerCap>15000?'Treatment was available but expensive.':'Medical care was difficult to access.'}`,type:'negative',condition:c=>c.age>=35&&c.health>20,statChanges:{health:-(rand(15,30)),happiness:-10,wealth:-15},weight:co=>1+0.5*(1-co.hdi)},
-    {id:'parent_death',text:(c,co)=>`${c.firstName}'s ${pick(['mother','father'])} passed away peacefully after a long illness. The grief was profound.`,type:'negative',condition:c=>c.age>=35,statChanges:{happiness:-12,wisdom:5},weight:1.5},
-    {id:'invest',text:(c,co)=>`${c.firstName} made a shrewd investment in ${pick(['real estate','a local business','land'])}.`,type:'positive',condition:c=>c.savings>1000&&c.intelligence>60,statChanges:{wealth:20},weight:1},
-    {id:'midlife',text:(c,co)=>`Looking around at family and the life built so far, ${c.firstName} felt a quiet sense of ${c.happiness>60?'satisfaction':'resignation — life had not turned out as hoped'}.`,type:'neutral',condition:c=>c.age>=40&&c.age<=55,statChanges:{wisdom:4},weight:1},
-    {id:'accident',text:(c,co)=>`${c.firstName} was involved in a ${pick(['road accident','workplace accident','fall'])}, resulting in injuries that took months to recover from.`,type:'negative',condition:c=>c.health>30,statChanges:{health:-(rand(10,25)),wealth:-10,happiness:-8},weight:1},
-  ],
-  elder:[
-    {id:'retirement',text:(c,co)=>`${c.firstName} retired from work. ${co.gdpPerCap>20000?'A modest pension provided some security.':'There was no pension — family would have to provide.'}`,type:'milestone',condition:c=>c.age>=60&&c.job!=='Unemployed'&&c.job!=='Retired',statChanges:{happiness:8},weight:3,effect:(c)=>{c.job='Retired';}},
-    {id:'grandchild',text:(c,co)=>`${c.firstName} became a grandparent for the first time. The joy was immense.`,type:'positive',condition:c=>c.children>0&&c.age>=50,statChanges:{happiness:14,wisdom:3},weight:2},
-    {id:'elder_health',text:(c,co)=>`Age was taking its toll on ${c.firstName}. ${pick(['Arthritis','Failing eyesight','Difficulty walking','Memory lapses'])} made daily life harder.`,type:'negative',condition:c=>c.age>=65,statChanges:{health:-(rand(5,12)),happiness:-5},weight:2},
-    {id:'legacy',text:(c,co)=>`${c.firstName} reflected on a long life. Much had been lost; much had been gained.`,type:'neutral',condition:c=>c.age>=70,statChanges:{wisdom:5,happiness:3},weight:1},
-  ]
-};
-const DECISIONS=[
-  {id:'school_choice',condition:c=>c.age===14&&c.education==='Primary School',
-   prompt:(c,co)=>`${c.firstName} must decide about continuing education in ${co.name}. ${co.literacy<60?'Few children here stay in school past this age.':'School fees are a burden but education matters.'}`,
+function clamp(v,mn,mx){mn=mn===undefined?0:mn;mx=mx===undefined?100:mx;return Math.min(mx,Math.max(mn,v));}
+function getJobs(co){var u=['teacher','shopkeeper','government worker','driver','trader','mechanic'];if(co.gdpPerCap>30000)return u.concat(['engineer','nurse','accountant','software developer','lawyer','doctor']);if(co.gdpPerCap>10000)return u.concat(['factory worker','nurse','salesperson','technician']);if(co.gdpPerCap>3000)return u.concat(['factory worker','security guard','domestic worker','market vendor','farmer']);return u.concat(['farmer','domestic worker','day labourer','fisherman','herder','market vendor']);}
+function getAvatar(c){if(c.age<3)return'&#128118;';if(c.age<13)return c.gender==='male'?'&#128102;':'&#128103;';if(c.age<20)return c.gender==='male'?'&#129489;':'&#128105;';if(c.age<40)return c.gender==='male'?'&#128104;':'&#128105;';if(c.age<65)return c.gender==='male'?'&#129492;':'&#128105;';return c.gender==='male'?'&#128116;':'&#128117;';}
+function getLE(co,era){var b=co.lifeExp;if(era==='1950')b=Math.max(b-20,35);else if(era==='1970')b=Math.max(b-12,42);else if(era==='1990')b=Math.max(b-5,50);return b;}
+function shouldDie(c,co){if(c.health<=0)return true;var le=getLE(co,c.era);if(c.age<1)return Math.random()<co.infantMort/1000*5;if(c.age>le){var ex=c.age-le;return Math.random()<0.06+ex*0.04;}if(c.age>le*0.9)return Math.random()<0.02;return false;}
+function causeOfDeath(c,co){if(c.health<=0){if(c.age<5)return'infant illness';if(c.age<20)return pick(['a serious illness','injuries from an accident','malnutrition']);if(c.age<50)return pick(['a serious illness','complications from injury','disease']);return pick(['heart failure','cancer','organ failure','stroke']);}var causes=[];if(c.age>60)causes=causes.concat(['heart disease','cancer','stroke','pneumonia','natural causes']);if(co.infantMort>40)causes.push('tropical disease');if(c.age>80)causes=causes.concat(['old age','old age','old age']);return pick(causes.length?causes:['natural causes']);}
+
+var EVENTS={
+childhood:[
+  {id:'school',text:function(c,co){return 'At age '+c.age+', '+c.firstName+' started primary school in '+co.name+'. The '+(co.literacy<60?'crowded, under-resourced':'modest')+' classroom had '+Math.floor(20+Math.random()*30)+' students.';},type:'neutral',cond:function(c){return c.age===6&&c.education==='None';},sc:{intelligence:2,happiness:1},w:5,ms:true,fx:function(c){c.education='Primary School';}},
+  {id:'sick_child',text:function(c,co){return c.firstName+' fell ill with '+pick(['a fever','malaria','typhoid','a respiratory infection'])+'. '+(co.gdpPerCap<2000?'Medical care was hard to find.':'Treatment was sought from a local clinic.');},type:'negative',cond:function(c){return c.age>3&&c.age<12&&c.health>20;},sc:{health:-1},wf:function(co){return co.infantMort/10;},randHealth:true},
+  {id:'friend',text:function(c,co){return c.firstName+' made a close friend at school.';},type:'positive',cond:function(c){return c.age>=6&&c.age<=14;},sc:{happiness:5},w:2},
+  {id:'parents_fight',text:function(c,co){return c.firstName+"'s parents argued bitterly for weeks. The tension at home was difficult.";},type:'negative',cond:function(c){return c.age>4&&c.age<16;},sc:{happiness:-6,wisdom:2},w:1.5},
+  {id:'disaster',text:function(c,co){return 'A '+pick(['flood','drought','earthquake','cyclone'])+' struck '+co.name+'. '+c.firstName+"'s family lost some possessions but survived.";},type:'negative',cond:function(){return true;},sc:{happiness:-8,wisdom:3},wf:function(co){return co.hdi<0.6?2:0.5;},randWealth:true},
+  {id:'book',text:function(c,co){return c.firstName+' discovered a love of reading after finding an old '+pick(['history book','novel','science textbook','atlas'])+' at school.';},type:'positive',cond:function(c){return c.age>=7&&c.age<=14;},sc:{intelligence:4,happiness:3},wf:function(co){return co.literacy/40;}},
+],
+teen:[
+  {id:'secondary',text:function(c,co){return c.firstName+' enrolled in secondary school. '+(co.literacy<60?'Only about half of children in '+co.name+' make it this far.':'This was the expected next step.');},type:'milestone',cond:function(c){return c.age===12&&c.education==='Primary School';},sc:{intelligence:3},w:4,ms:true,fx:function(c){c.education='Secondary School';}},
+  {id:'dropout',text:function(c,co){return 'Financial pressures forced '+c.firstName+' to drop out of school to help support the family.';},type:'negative',cond:function(c){return c.age>=13&&c.age<=17&&c.wealth<20&&Math.random()<0.3;},sc:{happiness:-10,intelligence:-2,wealth:5},wf:function(co){return co.gdpPerCap<2000?2:0.3;},fx:function(c){c.education='Dropped out';}},
+  {id:'romance',text:function(c,co){return c.firstName+' experienced their first romance.';},type:'positive',cond:function(c){return c.age>=14&&c.age<=18&&c.relationship==='Single';},sc:{happiness:8},w:2},
+  {id:'war',text:function(c,co){return 'Armed conflict broke out in the region. '+c.firstName+"'s family stayed indoors for weeks, listening to distant gunfire.";},type:'negative',cond:function(){return true;},sc:{happiness:-15,wisdom:5},wf:function(co){return co.hdi<0.5?2:0.3;},randHealth:true,warFlag:true},
+  {id:'sport',text:function(c,co){return c.firstName+' showed real talent in '+pick(['football','athletics','wrestling','swimming','cricket'])+' and was selected for a local team.';},type:'positive',cond:function(c){return c.athletic>50;},sc:{happiness:10,athletic:5,health:5},w:1.5},
+  {id:'art',text:function(c,co){return c.firstName+' discovered a passion for '+pick(['painting','music','writing','dance','theatre'])+'.';},type:'positive',cond:function(c){return c.artistic>50;},sc:{happiness:8,artistic:6},w:1},
+],
+adult_early:[
+  {id:'university',text:function(c,co){return c.firstName+' was accepted into university - a '+(co.hdi>0.8?'common':'rare')+' achievement in '+co.name+'.';},type:'milestone',cond:function(c){return c.age>=18&&c.age<=22&&c.education==='Secondary School'&&c.intelligence>55;},sc:{intelligence:8,happiness:5,wealth:-15},w:3,ms:true,fx:function(c){c.education='University';}},
+  {id:'first_job',text:function(c,co){return c.firstName+' got their first job as a '+pick(getJobs(co))+'.';},type:'positive',cond:function(c){return c.age>=18&&c.age<=28&&c.job==='Unemployed';},sc:{wealth:10,happiness:6},w:3,fxCo:true},
+  {id:'marriage',text:function(c,co){return c.firstName+' married in a '+pick(['small','modest','joyful','traditional'])+' ceremony attended by family and friends.';},type:'milestone',cond:function(c){return c.age>=20&&c.age<=35&&c.relationship==='Single';},sc:{happiness:12,wealth:-8},w:2,ms:true,fx:function(c){c.relationship='Married';}},
+  {id:'child',text:function(c,co){return c.firstName+"'s "+(c.children===0?'first':'next')+' child was born. A '+pick(['boy','girl'])+', healthy and strong.';},type:'positive',cond:function(c){return c.age>=20&&c.relationship==='Married'&&c.children<6;},sc:{happiness:10,wealth:-5},w:2.5,childFx:true},
+  {id:'job_loss',text:function(c,co){return c.firstName+' was laid off from work. '+(co.gdpPerCap>10000?'Unemployment benefits helped somewhat.':'There was no safety net.');},type:'negative',cond:function(c){return c.job!=='Unemployed';},sc:{happiness:-12,wealth:-10},w:1,fx:function(c){c.job='Unemployed';}},
+  {id:'promotion',text:function(c,co){return 'Hard work paid off - '+c.firstName+' received a promotion and a pay raise.';},type:'positive',cond:function(c){return c.job!=='Unemployed'&&c.intelligence>50;},sc:{wealth:15,happiness:8},w:1.5},
+  {id:'divorce',text:function(c,co){return 'After years of tension, '+c.firstName+"'s marriage ended in divorce.";},type:'negative',cond:function(c){return c.relationship==='Married'&&c.happiness<40;},sc:{happiness:-15,wealth:-20},w:1,fx:function(c){c.relationship='Divorced';}},
+  {id:'corrupt',text:function(c,co){return c.firstName+' was asked to pay a bribe to a government official.';},type:'negative',cond:function(){return true;},sc:{happiness:-5,wealth:-5,wisdom:3},wf:function(co){return co.hdi<0.65?2:0.3;}},
+],
+adult_mid:[
+  {id:'health_crisis',text:function(c,co){return c.firstName+' was diagnosed with '+pick(['diabetes','hypertension','a heart condition','cancer'])+'. '+(co.gdpPerCap>15000?'Treatment was available but expensive.':'Medical care was difficult to access.');},type:'negative',cond:function(c){return c.age>=35&&c.health>20;},sc:{health:-20,happiness:-10,wealth:-15},wf:function(co){return 1+0.5*(1-co.hdi);}},
+  {id:'parent_death',text:function(c,co){return c.firstName+"'s "+pick(['mother','father'])+' passed away. The grief was profound.';},type:'negative',cond:function(c){return c.age>=35;},sc:{happiness:-12,wisdom:5},w:1.5},
+  {id:'invest',text:function(c,co){return c.firstName+' made a shrewd investment in '+pick(['real estate','a local business','land'])+'.';},type:'positive',cond:function(c){return c.savings>1000&&c.intelligence>60;},sc:{wealth:20},w:1},
+  {id:'midlife',text:function(c,co){return 'Looking at the life built so far, '+c.firstName+' felt a quiet sense of '+(c.happiness>60?'satisfaction.':'resignation - life had not turned out as hoped.');},type:'neutral',cond:function(c){return c.age>=40&&c.age<=55;},sc:{wisdom:4},w:1},
+  {id:'accident',text:function(c,co){return c.firstName+' was involved in a '+pick(['road accident','workplace accident','fall'])+', resulting in injuries.';},type:'negative',cond:function(c){return c.health>30;},sc:{health:-15,wealth:-10,happiness:-8},w:1},
+],
+elder:[
+  {id:'retire',text:function(c,co){return c.firstName+' retired from work. '+(co.gdpPerCap>20000?'A modest pension provided some security.':'There was no pension - family would provide.');},type:'milestone',cond:function(c){return c.age>=60&&c.job!=='Unemployed'&&c.job!=='Retired';},sc:{happiness:8},w:3,ms:true,fx:function(c){c.job='Retired';}},
+  {id:'grandchild',text:function(c,co){return c.firstName+' became a grandparent. The joy was immense.';},type:'positive',cond:function(c){return c.children>0&&c.age>=50;},sc:{happiness:14,wisdom:3},w:2},
+  {id:'elder_health',text:function(c,co){return 'Age was taking its toll on '+c.firstName+'. '+pick(['Arthritis','Failing eyesight','Difficulty walking','Memory lapses'])+' made daily life harder.';},type:'negative',cond:function(c){return c.age>=65;},sc:{health:-8,happiness:-5},w:2},
+  {id:'legacy',text:function(c,co){return c.firstName+' reflected on a long life. Much had been lost; much had been gained.';},type:'neutral',cond:function(c){return c.age>=70;},sc:{wisdom:5,happiness:3},w:1},
+]};
+
+var DECISIONS=[
+  {id:'school_choice',cond:function(c){return c.age===14&&c.education==='Primary School';},
+   prompt:function(c,co){return c.firstName+' must decide about continuing education in '+co.name+'. '+(co.literacy<60?'Few children here stay in school past this age.':'School fees are a burden but education matters.');},
    choices:[
-     {text:'Continue in school (costs money, gains intelligence)',effect:(c)=>{c.wealth-=5;c.intelligence+=4;c.education='Secondary School';return{happiness:3,intelligence:4};}},
-     {text:'Leave school to work and support the family',effect:(c)=>{c.wealth+=8;c.happiness-=8;c.education='Dropped out';return{wealth:8,happiness:-8};}},
+     {text:'Continue in school',fx:function(c){c.wealth-=5;c.intelligence+=4;c.education='Secondary School';return{intelligence:4,happiness:3};}},
+     {text:'Leave school to work and support the family',fx:function(c){c.wealth+=8;c.happiness-=8;c.education='Dropped out';return{wealth:8,happiness:-8};}},
    ]},
-  {id:'migrate_decision',condition:c=>c.age>=18&&c.age<=30&&c.country.gdpPerCap<3000&&Math.random()<0.3&&!c.flags.migrated,
-   prompt:(c,co)=>`${c.firstName} has heard of others leaving ${co.name} in search of a better life abroad. It's dangerous and costly, but the prospects here are bleak.`,
+  {id:'migrate',cond:function(c){return c.age>=18&&c.age<=30&&c.country.gdpPerCap<3000&&Math.random()<0.3&&!c.flags.migrated;},
+   prompt:function(c,co){return c.firstName+' has heard of others leaving '+co.name+' for a better life abroad. It is dangerous and costly, but prospects here are bleak.';},
    choices:[
-     {text:'Stay in your home country — family needs you here',effect:(c)=>{c.happiness-=4;c.wisdom+=3;c.flags.migrated='stayed';return{wisdom:3};}},
-     {text:'Attempt to emigrate (high risk, possible high reward)',effect:(c)=>{if(Math.random()<0.5){c.wealth+=30;c.happiness+=5;c.flags.migrated='success';return{wealth:30,happiness:5};}else{c.health-=20;c.wealth-=15;c.flags.migrated='failed';return{health:-20,happiness:-15};}}},
+     {text:'Stay - family needs you here',fx:function(c){c.happiness-=4;c.wisdom+=3;c.flags.migrated='stayed';return{wisdom:3};}},
+     {text:'Attempt to emigrate (high risk, possible high reward)',fx:function(c){if(Math.random()<0.5){c.wealth+=30;c.happiness+=5;c.flags.migrated='success';return{wealth:30,happiness:5};}else{c.health-=20;c.wealth-=15;c.flags.migrated='failed';return{health:-20,happiness:-15};}}},
    ]},
-  {id:'marriage_choice',condition:c=>c.age>=22&&c.age<=32&&c.relationship==='Single'&&Math.random()<0.5,
-   prompt:(c,co)=>`Someone has shown serious interest in marrying ${c.firstName}. What does ${c.firstName} do?`,
+  {id:'marry',cond:function(c){return c.age>=22&&c.age<=32&&c.relationship==='Single'&&Math.random()<0.5;},
+   prompt:function(c,co){return 'Someone has shown serious interest in marrying '+c.firstName+'. What does '+c.firstName+' do?';},
    choices:[
-     {text:'Accept — begin a life together',effect:(c)=>{c.relationship='Married';c.happiness+=10;return{happiness:10};}},
-     {text:'Decline — focus on your own path first',effect:(c)=>{c.happiness+=2;c.intelligence+=2;return{intelligence:2};}},
+     {text:'Accept - begin a life together',fx:function(c){c.relationship='Married';c.happiness+=10;return{happiness:10};}},
+     {text:'Decline - focus on your own path first',fx:function(c){c.intelligence+=2;c.happiness+=2;return{intelligence:2};}},
    ]},
-  {id:'job_offer',condition:c=>c.age>=22&&c.age<=45&&c.job!=='Unemployed'&&Math.random()<0.3,
-   prompt:(c,co)=>`${c.firstName} has been offered a better-paying job, but it means moving to a different city away from family.`,
+  {id:'job_offer',cond:function(c){return c.age>=22&&c.age<=45&&c.job!=='Unemployed'&&Math.random()<0.3;},
+   prompt:function(c,co){return c.firstName+' has been offered a better-paying job, but it means moving to a different city away from family.';},
    choices:[
-     {text:'Take the job — better opportunities await',effect:(c,co)=>{c.wealth+=20;c.happiness-=5;c.job=pick(getJobsByCountry(c.country));return{wealth:20};}},
-     {text:'Stay with your current work and community',effect:(c)=>{c.happiness+=5;c.wisdom+=2;return{happiness:5};}},
+     {text:'Take the job',fx:function(c){c.wealth+=20;c.happiness-=5;c.job=pick(getJobs(c.country));return{wealth:20};}},
+     {text:'Stay with your current work and community',fx:function(c){c.happiness+=5;c.wisdom+=2;return{happiness:5};}},
    ]},
-  {id:'medical_choice',condition:c=>c.health<35&&c.age>20&&c.savings>200,
-   prompt:(c,co)=>`${c.firstName}'s health is declining seriously. There is treatment available but it would cost nearly all remaining savings.`,
+  {id:'medical',cond:function(c){return c.health<35&&c.age>20&&c.savings>200;},
+   prompt:function(c,co){return c.firstName+"'s health is declining seriously. Treatment is available but costly.";},
    choices:[
-     {text:'Spend the savings on treatment',effect:(c)=>{c.health+=25;c.savings=Math.max(0,c.savings-500);c.wealth-=15;return{health:25,wealth:-15};}},
-     {text:'Rely on rest and hope for recovery',effect:(c)=>{if(Math.random()<0.5){c.health+=10;return{health:10};}else{c.health-=15;return{health:-15};}}},
+     {text:'Spend savings on treatment',fx:function(c){c.health+=25;c.savings=Math.max(0,c.savings-500);c.wealth-=15;return{health:25,wealth:-15};}},
+     {text:'Rely on rest and hope for recovery',fx:function(c){if(Math.random()<0.5){c.health+=10;return{health:10};}else{c.health-=15;return{health:-15};}}},
    ]},
 ];
 
-const ACHIEVEMENTS=[
-  {id:'centenarian',name:'Centenarian',desc:'Live to 100 years old',check:c=>c.age>=100},
-  {id:'scholar',name:'Scholar',desc:'Reach university education',check:c=>c.education==='University'},
-  {id:'wealthy',name:'Self-Made',desc:'Accumulate $50,000 in savings',check:c=>c.savings>=50000},
-  {id:'large_family',name:'Full House',desc:'Have 5 or more children',check:c=>c.children>=5},
-  {id:'survived_war',name:'Survivor',desc:'Live through armed conflict',check:c=>c.flags.survivedWar},
-  {id:'globe_trotter',name:'Uprooted',desc:'Successfully emigrate',check:c=>c.flags.migrated==='success'},
-  {id:'long_marriage',name:'Devoted',desc:'Stay married for 25+ years',check:c=>(c.flags.marriageYears||0)>=25},
-  {id:'happy_life',name:'Contented Soul',desc:'Reach happiness of 80+',check:c=>c.happiness>=80},
+var ACHIEVEMENTS=[
+  {id:'centenarian',name:'Centenarian',desc:'Live to 100 years old',check:function(c){return c.age>=100;}},
+  {id:'scholar',name:'Scholar',desc:'Reach university education',check:function(c){return c.education==='University';}},
+  {id:'wealthy',name:'Self-Made',desc:'Accumulate $50,000 in savings',check:function(c){return c.savings>=50000;}},
+  {id:'large_family',name:'Full House',desc:'Have 5 or more children',check:function(c){return c.children>=5;}},
+  {id:'survivor',name:'Survivor',desc:'Live through armed conflict',check:function(c){return c.flags.survivedWar;}},
+  {id:'emigrant',name:'Uprooted',desc:'Successfully emigrate',check:function(c){return c.flags.migrated==='success';}},
+  {id:'devoted',name:'Devoted',desc:'Stay married for 25+ years',check:function(c){return (c.flags.marriageYears||0)>=25;}},
+  {id:'happy',name:'Contented Soul',desc:'Reach happiness of 80+',check:function(c){return c.happiness>=80;}},
 ];
-let G=null,autoInterval=null,selectedRegion='random',selectedEra='2010';
+var G=null,autoInterval=null,selectedRegion='random',selectedEra='2010';
 
 function initChar(country,era,gender,name){
-  const g=gender==='random'?pick(['male','female']):gender;
-  const nameList=g==='male'?MALE_NAMES[country.code]:FEMALE_NAMES[country.code];
-  const firstName=name||pick(nameList||['Alex']);
-  return{firstName,gender:g,country,era,birthYear:parseInt(era)+rand(0,9),age:0,
-    health:clamp(rand(50,90)+(country.hdi*100-50)*0.3),happiness:clamp(rand(40,70)),
+  var g=gender==='random'?pick(['male','female']):gender;
+  var nl=g==='male'?MN[country.code]:FN[country.code];
+  var firstName=name||pick(nl||['Alex']);
+  return{firstName:firstName,gender:g,country:country,era:era,
+    birthYear:parseInt(era)+rand(0,9),age:0,
+    health:clamp(rand(50,90)+(country.hdi*100-50)*0.3),
+    happiness:clamp(rand(40,70)),
     intelligence:clamp(rand(30,70)+(country.literacy-60)*0.2),
-    wealth:clamp(rand(5,30)*country.hdi),athletic:rand(30,80),artistic:rand(20,70),wisdom:rand(10,30),
-    education:'None',job:'Unemployed',relationship:'Single',children:0,
-    savings:rand(0,Math.floor(country.gdpPerCap/50)),peakSavings:0,flags:{},unlockedAchievements:new Set(),log:[]};
+    wealth:clamp(rand(5,30)*country.hdi),
+    athletic:rand(30,80),artistic:rand(20,70),wisdom:rand(10,30),
+    education:'None',job:'Unemployed',relationship:'Single',
+    children:0,savings:rand(0,Math.floor(country.gdpPerCap/50)),
+    peakSavings:0,flags:{},unlockedAchievements:[],log:[]};
 }
 
 function processYear(){
-  const c=G.char,co=c.country;
+  var c=G.char,co=c.country;
   c.age++;
-  if(c.job!=='Unemployed'){const income=co.gdpPerCap/24,expenses=co.gdpPerCap/32;c.savings=Math.max(0,c.savings+income-expenses);}
+  if(c.job!=='Unemployed'){var inc=co.gdpPerCap/24,exp=co.gdpPerCap/32;c.savings=Math.max(0,c.savings+inc-exp);}
   c.peakSavings=Math.max(c.peakSavings,c.savings);
   if(c.relationship==='Married')c.flags.marriageYears=(c.flags.marriageYears||0)+1;
   if(c.age>40)c.health=clamp(c.health-rand(0,2));
   if(c.job!=='Unemployed')c.wealth=clamp(c.wealth+rand(0,3));
-  if(shouldDie(c,co,c.era)){endLife();return;}
-  const pending=DECISIONS.find(d=>{try{return d.condition(c)&&!c.flags['done_'+d.id];}catch(e){return false;}});
+  if(shouldDie(c,co)){endLife();return;}
+  var pending=null;
+  for(var i=0;i<DECISIONS.length;i++){try{if(DECISIONS[i].cond(c)&&!c.flags['done_'+DECISIONS[i].id]){pending=DECISIONS[i];break;}}catch(e){}}
   if(pending&&Math.random()<0.7){c.flags['done_'+pending.id]=true;showDecision(pending);return;}
-  const pool=getEventsForAge(c,co);
-  const fired=[];
-  for(let i=0;i<rand(1,2);i++){
-    const ev=pickWeightedEvent(pool,co,c);
-    if(ev&&!fired.includes(ev.id)){fired.push(ev.id);applyEvent(ev,c,co);}
-  }
-  clampStats(c);checkAchievements(c);updateUI();scrollFeed();
+  var pool=getPool(c,co);
+  var fired=[];
+  var n=rand(1,2);
+  for(var j=0;j<n;j++){var ev=pickEvent(pool,co);if(ev&&fired.indexOf(ev.id)===-1){fired.push(ev.id);applyEvent(ev,c,co);}}
+  clampStats(c);checkAch(c);updateUI();scrollFeed();
 }
 
-function getEventsForAge(c,co){
-  let pool=[];
+function getPool(c,co){
+  var pool;
   if(c.age<12)pool=EVENTS.childhood;
   else if(c.age<20)pool=EVENTS.teen;
   else if(c.age<45)pool=EVENTS.adult_early;
   else if(c.age<65)pool=EVENTS.adult_mid;
   else pool=EVENTS.elder;
-  return pool.filter(ev=>{try{return ev.condition(c,co);}catch(e){return false;}});
+  return pool.filter(function(ev){try{return ev.cond(c,co);}catch(e){return false;}});
 }
 
-function pickWeightedEvent(events,co,c){
-  if(!events.length)return null;
-  const weights=events.map(ev=>{try{const w=ev.weight;return typeof w==='function'?w(co):(w||1);}catch(e){return 1;}});
-  const total=weights.reduce((a,b)=>a+b,0);
-  let r=Math.random()*total;
-  for(let i=0;i<events.length;i++){r-=weights[i];if(r<=0)return events[i];}
-  return events[0];
+function pickEvent(pool,co){
+  if(!pool.length)return null;
+  var weights=pool.map(function(ev){try{return ev.wf?ev.wf(co):(ev.w||1);}catch(e){return 1;}});
+  var total=weights.reduce(function(a,b){return a+b;},0);
+  var r=Math.random()*total;
+  for(var i=0;i<pool.length;i++){r-=weights[i];if(r<=0)return pool[i];}
+  return pool[0];
 }
 
 function applyEvent(ev,c,co){
-  const text=ev.text(c,co);
-  const changes={};
-  const sc=ev.statChanges||{};
-  for(const[stat,delta]of Object.entries(sc)){
-    const d=typeof delta==='function'?delta(c):delta;
-    c[stat]=clamp((c[stat]||0)+d);changes[stat]=d;
+  var text=ev.text(c,co);
+  var changes={};
+  var sc=ev.sc||{};
+  for(var k in sc){
+    var d=sc[k];
+    if(ev.randHealth&&k==='health')d=-rand(5,15);
+    if(ev.randWealth&&k==='wealth')d=-rand(3,15);
+    c[k]=clamp((c[k]||0)+d);changes[k]=d;
   }
-  if(ev.effect)try{ev.effect(c,co);}catch(e){}
-  if(ev.id==='war')c.flags.survivedWar=true;
-  addEventCard(text,ev.type,c.age,changes,ev.milestone);
+  if(ev.fx)try{ev.fx(c,co);}catch(e){}
+  if(ev.fxCo)try{c.job=pick(getJobs(co));c.savings+=co.gdpPerCap/24;}catch(e){}
+  if(ev.childFx)c.children++;
+  if(ev.warFlag)c.flags.survivedWar=true;
+  addCard(text,ev.type,c.age,changes,ev.ms);
 }
 
-function showDecision(decision){
-  const c=G.char,co=c.country;
+function showDecision(dec){
+  var c=G.char,co=c.country;
   document.getElementById('btn-age-year').disabled=true;
-  document.getElementById('decision-prompt').textContent=decision.prompt(c,co);
-  const el=document.getElementById('decision-choices');el.innerHTML='';
-  decision.choices.forEach(ch=>{
-    const btn=document.createElement('button');btn.className='choice-btn';btn.textContent=ch.text;
-    btn.onclick=()=>resolveDecision(ch);el.appendChild(btn);
+  document.getElementById('decision-prompt').textContent=dec.prompt(c,co);
+  var el=document.getElementById('decision-choices');el.innerHTML='';
+  dec.choices.forEach(function(ch){
+    var btn=document.createElement('button');btn.className='choice-btn';btn.textContent=ch.text;
+    btn.onclick=function(){resolveDecision(ch);};el.appendChild(btn);
   });
-  addEventCard('⚖ A decision must be made...','decision',c.age,{});
+  addCard('A decision must be made...','decision',c.age,{});
 }
 
-function resolveDecision(choice){
-  const c=G.char;
-  const changes=choice.effect(c,c.country)||{};
-  clampStats(c);checkAchievements(c);
+function resolveDecision(ch){
+  var c=G.char;
+  var changes=ch.fx(c,c.country)||{};
+  clampStats(c);checkAch(c);
   document.getElementById('decision-choices').innerHTML='';
   document.getElementById('decision-prompt').textContent='';
   document.getElementById('btn-age-year').disabled=false;
-  addEventCard(`${c.firstName} made their choice.`,'neutral',c.age,changes);
+  addCard(c.firstName+' made their choice.','neutral',c.age,changes);
   updateUI();
 }
+
 function endLife(){
-  const c=G.char;
+  var c=G.char;
   if(autoInterval){clearInterval(autoInterval);autoInterval=null;}
-  const cause=getCauseOfDeath(c,c.country);
-  const deathYear=c.birthYear+c.age;
-  addEventCard(`${c.firstName} passed away at age ${c.age} from ${cause}.`,'death',c.age,{});
-  setTimeout(()=>{
+  var cause=causeOfDeath(c,c.country);
+  var deathYear=c.birthYear+c.age;
+  addCard(c.firstName+' passed away at age '+c.age+' from '+cause+'.','death',c.age,{});
+  setTimeout(function(){
     document.getElementById('death-name').textContent=c.firstName;
-    document.getElementById('death-dates').textContent=`${c.birthYear} — ${deathYear}`;
-    document.getElementById('death-cause').textContent=`Cause of death: ${cause}`;
+    document.getElementById('death-dates').textContent=c.birthYear+' - '+deathYear;
+    document.getElementById('death-cause').textContent='Cause of death: '+cause;
     document.getElementById('death-age').textContent=c.age;
     document.getElementById('death-country').textContent=c.country.name;
     document.getElementById('death-children').textContent=c.children;
-    document.getElementById('death-wealth').textContent=`$${Math.floor(c.peakSavings).toLocaleString()}`;
-    document.getElementById('death-quote').textContent=generateEpitaph(c);
-    saveCompletedLife(c);showScreen('death');
+    document.getElementById('death-wealth').textContent='$'+Math.floor(c.peakSavings).toLocaleString();
+    document.getElementById('death-quote').textContent=epitaph(c);
+    saveCompleted(c);showScreen('death');
   },1200);
 }
 
-function generateEpitaph(c){
+function epitaph(c){
   return pick([
-    `"${c.firstName} lived as best they could, in the time and place they were given."`,
-    `"A life shaped by ${c.country.name}, by chance, and by the choices made along the way."`,
-    `"${c.children>0?c.children+' children carry the story forward.':'Some stories end without continuation.'}"`,
-    `"From birth to death, ${c.age} years — each one a year someone else in the world also lived."`,
+    '"'+c.firstName+' lived as best they could, in the time and place they were given."',
+    '"A life shaped by '+c.country.name+', by chance, and by the choices made along the way."',
+    '"'+(c.children>0?c.children+' children carry the story forward.':'Some stories end without continuation.')+'"',
+    '"From birth to death, '+c.age+' years - each one a year someone else in the world also lived."',
   ]);
 }
 
-function addEventCard(text,type,age,changes,milestone=false){
-  const feed=document.getElementById('event-feed');
-  const card=document.createElement('div');
-  card.className=`event-card event-${type}${milestone?' event-milestone':''}`;
-  let chips='';
-  for(const[stat,val]of Object.entries(changes)){
-    if(typeof val==='number'&&val!==0){
-      chips+=`<span class="stat-chip ${val>0?'pos':'neg'}">${val>0?'+':''}${val} ${stat}</span>`;
-    }
-  }
-  card.innerHTML=`<div class="event-age-tag">Age ${age}</div><div class="event-text">${text}</div>${chips?`<div class="event-stat-changes">${chips}</div>`:''}`;
+function addCard(text,type,age,changes,milestone){
+  var feed=document.getElementById('event-feed');
+  var card=document.createElement('div');
+  card.className='event-card event-'+type+(milestone?' event-milestone':'');
+  var chips='';
+  for(var k in changes){var v=changes[k];if(typeof v==='number'&&v!==0)chips+='<span class="stat-chip '+(v>0?'pos':'neg')+'">'+(v>0?'+':'')+v+' '+k+'</span>';}
+  card.innerHTML='<div class="event-age-tag">Age '+age+'</div><div class="event-text">'+text+'</div>'+(chips?'<div class="event-stat-changes">'+chips+'</div>':'');
   feed.appendChild(card);
-  G.char.log.push({age,text,type,changes});
+  G.char.log.push({age:age,text:text,type:type});
 }
 
-function scrollFeed(){const f=document.getElementById('event-feed');f.scrollTop=f.scrollHeight;}
+function scrollFeed(){var f=document.getElementById('event-feed');f.scrollTop=f.scrollHeight;}
 
 function clampStats(c){
-  ['health','happiness','intelligence','wealth','athletic','artistic','wisdom'].forEach(k=>{c[k]=clamp(c[k]);});
+  ['health','happiness','intelligence','wealth','athletic','artistic','wisdom'].forEach(function(k){c[k]=clamp(c[k]);});
 }
 
 function updateUI(){
-  const c=G.char,co=c.country;
+  var c=G.char,co=c.country;
   document.getElementById('display-age').textContent=c.age;
-  document.getElementById('sidebar-avatar').textContent=getAvatar(c);
+  document.getElementById('sidebar-avatar').innerHTML=getAvatar(c);
   document.getElementById('sidebar-name').textContent=c.firstName;
-  document.getElementById('sidebar-meta').textContent=`${co.name} · ${c.gender} · Born ${c.birthYear}`;
-  ['health','happiness','wealth','intelligence','athletic','artistic','wisdom'].forEach(s=>{
-    const bar=document.getElementById(`bar-${s}`),val=document.getElementById(`val-${s}`);
+  document.getElementById('sidebar-meta').textContent=co.name+' \u00b7 '+c.gender+' \u00b7 Born '+c.birthYear;
+  ['health','happiness','wealth','intelligence','athletic','artistic','wisdom'].forEach(function(s){
+    var bar=document.getElementById('bar-'+s),val=document.getElementById('val-'+s);
     if(bar)bar.style.width=c[s]+'%';if(val)val.textContent=Math.floor(c[s]);
   });
   document.getElementById('fact-country').textContent=co.name;
@@ -656,98 +535,94 @@ function updateUI(){
   document.getElementById('fact-job').textContent=c.job;
   document.getElementById('fact-relationship').textContent=c.relationship;
   document.getElementById('fact-children').textContent=c.children;
-  document.getElementById('fact-savings').textContent=`$${Math.floor(c.savings).toLocaleString()}`;
+  document.getElementById('fact-savings').textContent='$'+Math.floor(c.savings).toLocaleString();
 }
 
-function checkAchievements(c){
-  ACHIEVEMENTS.forEach(ach=>{
-    if(!c.unlockedAchievements.has(ach.id)){
-      try{if(ach.check(c)){c.unlockedAchievements.add(ach.id);showAchievement(ach);}}catch(e){}
+function checkAch(c){
+  ACHIEVEMENTS.forEach(function(a){
+    if(c.unlockedAchievements.indexOf(a.id)===-1){
+      try{if(a.check(c)){c.unlockedAchievements.push(a.id);showToast(a.name,a.desc);}}catch(e){}
     }
   });
 }
 
-function showAchievement(ach){
-  const t=document.getElementById('achievement-toast');
-  document.getElementById('toast-label').textContent='🏆 Achievement Unlocked';
-  document.getElementById('toast-name').textContent=ach.name;
-  document.getElementById('toast-desc').textContent=ach.desc;
-  t.style.display='block';setTimeout(()=>{t.style.display='none';},4000);
+function showToast(name,desc){
+  var t=document.getElementById('achievement-toast');
+  document.getElementById('toast-label').textContent='Achievement Unlocked';
+  document.getElementById('toast-name').textContent=name;
+  document.getElementById('toast-desc').textContent=desc;
+  t.style.display='block';setTimeout(function(){t.style.display='none';},4000);
 }
 
 function saveGame(){
   if(!G)return;
-  try{
-    localStorage.setItem('realLivesSave',JSON.stringify({...G.char,unlockedAchievements:[...G.char.unlockedAchievements]}));
-    const t=document.getElementById('achievement-toast');
-    document.getElementById('toast-label').textContent='✓ Game Saved';
-    document.getElementById('toast-name').textContent='';document.getElementById('toast-desc').textContent='';
-    t.style.display='block';setTimeout(()=>{t.style.display='none';},2000);
-  }catch(e){alert('Could not save: '+e.message);}
+  try{localStorage.setItem('rlSave',JSON.stringify(G.char));showToast('Saved','Game progress saved.');}
+  catch(e){alert('Could not save: '+e.message);}
 }
 
 function continueSave(){
   try{
-    const raw=localStorage.getItem('realLivesSave');if(!raw)return;
-    const data=JSON.parse(raw);
-    G={char:{...data,unlockedAchievements:new Set(data.unlockedAchievements)}};
+    var raw=localStorage.getItem('rlSave');if(!raw)return;
+    G={char:JSON.parse(raw)};
     showScreen('game');updateUI();
-    addEventCard(`Welcome back, ${G.char.firstName}. Life continues...`,'neutral',G.char.age,{});
+    addCard('Welcome back, '+G.char.firstName+'. Life continues...','neutral',G.char.age,{});
   }catch(e){alert('Could not load save.');}
 }
 
-function saveCompletedLife(c){
+function saveCompleted(c){
   try{
-    const lives=JSON.parse(localStorage.getItem('realLivesCompleted')||'[]');
-    lives.unshift({name:c.firstName,country:c.country.name,age:c.age,gender:c.gender,children:c.children,savings:Math.floor(c.peakSavings),date:new Date().toISOString()});
-    localStorage.setItem('realLivesCompleted',JSON.stringify(lives.slice(0,20)));
+    var lives=JSON.parse(localStorage.getItem('rlCompleted')||'[]');
+    lives.unshift({name:c.firstName,country:c.country.name,age:c.age,children:c.children,savings:Math.floor(c.peakSavings),date:new Date().toISOString()});
+    localStorage.setItem('rlCompleted',JSON.stringify(lives.slice(0,20)));
   }catch(e){}
 }
 
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   document.getElementById('screen-'+id).classList.add('active');
 }
 
 function selectRegion(r,btn){
   selectedRegion=r;
-  document.querySelectorAll('.region-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.region-btn').forEach(function(b){b.classList.remove('selected');});
   btn.classList.add('selected');
 }
 
 function selectEra(e,btn){
   selectedEra=e;
-  document.querySelectorAll('.era-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.era-btn').forEach(function(b){b.classList.remove('selected');});
   btn.classList.add('selected');
 }
 
 function startNewLife(){
-  const gender=document.getElementById('input-gender').value;
-  const name=document.getElementById('input-name').value.trim();
-  let country;
-  if(selectedRegion==='random'){const all=Object.values(WORLD_DATA).flat();country=pick(all);}
-  else country=pick(WORLD_DATA[selectedRegion]||Object.values(WORLD_DATA).flat());
-  const char=initChar(country,selectedEra,gender,name);
-  G={char};
+  var gender=document.getElementById('input-gender').value;
+  var name=document.getElementById('input-name').value.trim();
+  var allCountries=[];
+  for(var r in WORLD_DATA)allCountries=allCountries.concat(WORLD_DATA[r]);
+  var country=selectedRegion==='random'?pick(allCountries):pick(WORLD_DATA[selectedRegion]||allCountries);
+  var char=initChar(country,selectedEra,gender,name);
+  G={char:char};
   document.getElementById('event-feed').innerHTML='';
   document.getElementById('decision-choices').innerHTML='';
   document.getElementById('decision-prompt').textContent='';
   document.getElementById('btn-age-year').disabled=false;
   document.getElementById('auto-toggle').checked=false;
+  if(autoInterval){clearInterval(autoInterval);autoInterval=null;}
   showScreen('game');updateUI();
-  addEventCard(`${char.firstName} was born in ${country.name} in ${char.birthYear}. ${char.gender==='male'?'He':'She'} entered the world in a ${country.gdpPerCap>15000?'hospital':country.gdpPerCap>5000?'clinic':'small home'}. Life expectancy in ${country.name}: about ${getLifeExpectancy(country,char.era)} years.`,'birth',0,{},true);
+  var le=getLE(country,selectedEra);
+  addCard(char.firstName+' was born in '+country.name+' in '+char.birthYear+'. '+(char.gender==='male'?'He':'She')+' entered the world in a '+(country.gdpPerCap>15000?'hospital':country.gdpPerCap>5000?'clinic':'small home')+'. Life expectancy in '+country.name+': about '+le+' years.','birth',0,{},true);
   setTimeout(scrollFeed,100);
 }
 
 function ageOneYear(){if(!G)return;processYear();setTimeout(scrollFeed,50);}
 
-function toggleAuto(checkbox){
-  if(checkbox.checked){autoInterval=setInterval(()=>{if(!document.getElementById('btn-age-year').disabled)ageOneYear();},600);}
+function toggleAuto(cb){
+  if(cb.checked){autoInterval=setInterval(function(){if(!document.getElementById('btn-age-year').disabled)ageOneYear();},600);}
   else{clearInterval(autoInterval);autoInterval=null;}
 }
 
-window.addEventListener('load',()=>{
-  if(localStorage.getItem('realLivesSave'))document.getElementById('btn-continue').style.display='inline-flex';
+window.addEventListener('load',function(){
+  if(localStorage.getItem('rlSave'))document.getElementById('btn-continue').style.display='inline-flex';
 });
 </script>
 </body>
