@@ -1,0 +1,2982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Lives Classic</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #008080;
+  font-family: "MS Sans Serif", "Segoe UI", Tahoma, Geneva, sans-serif;
+  font-size: 11px;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 24px 12px; min-height: 100vh;
+}
+.window {
+  background: #c0c0c0;
+  border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: 3px 3px 0 #000; width: 740px; position: relative;
+}
+.title-bar {
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: white; padding: 3px 5px; font-weight: bold; font-size: 11px;
+  display: flex; justify-content: space-between; align-items: center;
+  user-select: none; cursor: default;
+}
+.title-bar-left { display: flex; align-items: center; gap: 5px; }
+.title-bar-buttons { display: flex; gap: 2px; }
+.title-btn {
+  width: 16px; height: 14px; background: #c0c0c0;
+  border: 1px solid; border-color: #ffffff #808080 #808080 #ffffff;
+  font-size: 9px; font-weight: bold; color: #000; cursor: default;
+  display: flex; align-items: center; justify-content: center;
+}
+/* MENU */
+.menu-bar {
+  background: #c0c0c0; border-bottom: 1px solid #808080;
+  padding: 1px 2px; display: flex; position: relative; z-index: 100;
+}
+.menu-item { padding: 2px 8px; cursor: default; font-size: 11px; position: relative; }
+.menu-item:hover, .menu-item.open { background: #000080; color: white; }
+.menu-item.disabled { color: #808080; pointer-events: none; }
+.dropdown {
+  display: none; position: absolute; top: 100%; left: 0;
+  background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: 3px 3px 0 #000; min-width: 190px; z-index: 200;
+}
+.menu-item.open > .dropdown { display: block; }
+.dd-item {
+  padding: 3px 20px 3px 10px; cursor: default; white-space: nowrap;
+  position: relative; display: flex; justify-content: space-between; align-items: center;
+}
+.dd-item:hover:not(.dd-disabled) { background: #000080; color: white; }
+.dd-item.dd-disabled { color: #808080; cursor: default; }
+.dd-separator { height: 1px; background: #808080; border-bottom: 1px solid #fff; margin: 2px 0; }
+.dd-arrow { font-size: 9px; margin-left: 8px; }
+.submenu {
+  display: none; position: absolute; left: 100%; top: -2px;
+  background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: 3px 3px 0 #000; min-width: 220px; z-index: 300;
+}
+.dd-item.has-sub:hover > .submenu { display: block; }
+.dd-item.has-sub:hover { background: #000080; color: white; }
+/* LAYOUT */
+.content { padding: 6px; display: flex; flex-direction: column; gap: 5px; }
+.panel { background: #c0c0c0; border: 2px solid; border-color: #808080 #ffffff #ffffff #808080; padding: 6px; }
+.panel-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; color: #000; }
+.main-layout { display: flex; gap: 5px; }
+.left-col { width: 200px; flex-shrink: 0; display: flex; flex-direction: column; gap: 5px; }
+.right-col { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.country-box {
+  background: #1a5c3a; border: 2px solid; border-color: #808080 #ffffff #ffffff #808080;
+  height: 58px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; gap: 2px;
+}
+.country-name { color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
+.country-region { color: #7dd; font-size: 10px; }
+.country-placeholder { color: #5a9; font-size: 10px; }
+.char-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #aaa; padding: 1px 0; font-size: 11px; }
+.char-row:last-child { border-bottom: none; }
+.ci-label { color: #555; }
+.ci-value { font-weight: bold; color: #000; }
+.career-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #aaa; padding: 2px 0; font-size: 11px; }
+.career-row:last-child { border-bottom: none; }
+.cr-label { color: #555; }
+.cr-value { font-weight: bold; color: #000080; max-width: 112px; text-align: right; word-break: break-word; }
+.cr-value.none { color: #888; font-weight: normal; font-style: italic; }
+.stat-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+.stat-row:last-child { margin-bottom: 0; }
+.stat-label { width: 78px; font-size: 11px; flex-shrink: 0; }
+.stat-track { flex: 1; height: 11px; background: #fff; border: 2px solid; border-color: #808080 #ffffff #ffffff #808080; overflow: hidden; }
+.stat-fill { height: 100%; transition: width 0.35s ease; }
+.stat-num { width: 26px; text-align: right; font-family: "Courier New", monospace; font-size: 11px; }
+/* EVENT LOG */
+.event-log {
+  background: white; border: 2px solid; border-color: #808080 #ffffff #ffffff #808080;
+  height: 230px; overflow-y: scroll; padding: 3px 4px;
+  font-family: "Courier New", monospace; font-size: 11px; line-height: 1.55;
+}
+.event-log::-webkit-scrollbar { width: 16px; }
+.event-log::-webkit-scrollbar-track { background: #c0c0c0; border-left: 1px solid #808080; }
+.event-log::-webkit-scrollbar-thumb { background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; min-height: 20px; }
+.event-log::-webkit-scrollbar-button { background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; height: 16px; }
+.log-placeholder { color: #888; padding: 6px; text-align: center; }
+.evt { padding: 1px 0; border-bottom: 1px solid #eee; }
+.evt:last-child { border-bottom: none; }
+.evt-year { color: #000080; font-weight: bold; margin-right: 5px; }
+.evt-birth   { color: #005500; font-weight: bold; }
+.evt-death   { color: #880000; font-weight: bold; }
+.evt-good    { color: #005500; }
+.evt-bad     { color: #880000; }
+.evt-neutral { color: #333333; }
+.evt-career  { color: #5500aa; }
+.evt-school  { color: #004488; }
+.evt-family  { color: #885500; }
+/* FINANCE TABLE */
+.fin-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.fin-table th { background: #000080; color: white; padding: 2px 5px; text-align: left; font-weight: normal; font-size: 10px; border: 1px solid #808080; }
+.fin-table td { padding: 2px 5px; border: 1px solid #c0c0c0; border-bottom: 1px solid #aaa; background: white; font-family: "Courier New", monospace; white-space: nowrap; }
+.fin-table tr.total-row td { border-bottom: 2px solid #808080; font-weight: bold; background: #e8e8e8; }
+.fin-table tr.self-row td { background: #f0f4ff; }
+.fin-right { text-align: right; }
+.fin-green { color: #006600; }
+.fin-red   { color: #880000; }
+.fin-gray  { color: #888; font-style: italic; }
+/* BUTTONS */
+.btn { background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; padding: 3px 10px; font-family: "MS Sans Serif", Tahoma, sans-serif; font-size: 11px; cursor: pointer; min-width: 72px; }
+.btn:active { border-color: #808080 #ffffff #ffffff #808080; padding: 4px 9px 2px 11px; }
+.btn:disabled { color: #808080; cursor: default; }
+.btn-bold { font-weight: bold; }
+.btn-row { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; padding: 2px; }
+.btn-status { margin-left: auto; font-size: 10px; color: #555; font-family: "Courier New", monospace; }
+/* STATUS BAR */
+.status-bar { background: #c0c0c0; border-top: 1px solid #808080; padding: 2px 4px; display: flex; gap: 4px; font-size: 10px; font-family: "Courier New", monospace; }
+.sb-section { border: 1px solid; border-color: #808080 #ffffff #ffffff #808080; padding: 1px 5px; color: #333; }
+.sb-right { margin-left: auto; }
+/* OVERLAYS / DIALOGS */
+.overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; align-items: center; justify-content: center; }
+.overlay.active { display: flex; }
+.dialog { background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; box-shadow: 4px 4px 0 #000; min-width: 320px; max-width: 440px; }
+.dialog-title { background: linear-gradient(to right, #000080, #1084d0); color: white; padding: 3px 5px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+.dialog-body { padding: 10px 12px; font-size: 11px; line-height: 1.9; }
+.dialog-btns { padding: 6px 10px 10px; display: flex; justify-content: center; gap: 8px; }
+.death-epitaph { margin-top: 8px; font-style: italic; color: #555; }
+.listbox { background: white; border: 2px solid; border-color: #808080 #ffffff #ffffff #808080; height: 140px; overflow-y: scroll; margin: 6px 0; font-family: "Courier New", monospace; font-size: 11px; }
+.listbox::-webkit-scrollbar { width: 16px; }
+.listbox::-webkit-scrollbar-track { background: #c0c0c0; }
+.listbox::-webkit-scrollbar-thumb { background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; }
+.listbox::-webkit-scrollbar-button { background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; height: 16px; }
+.lb-item { padding: 2px 6px; cursor: default; white-space: nowrap; }
+.lb-item:hover { background: #000080; color: white; }
+.lb-item.selected { background: #000080; color: white; }
+
+/* SUMMARY / HISTORY TABLES */
+.sum-table { width:100%; border-collapse:collapse; font-size:11px; }
+.sum-table th { background:#000080; color:white; padding:2px 8px; text-align:left; font-weight:normal; font-size:10px; border:1px solid #808080; }
+.sum-table td { padding:3px 8px; border:1px solid #d0d0d0; background:white; font-family:"Courier New",monospace; }
+.sum-table tr:nth-child(even) td { background:#f5f5f5; }
+.sum-section { padding:6px 10px 2px; font-weight:bold; font-size:10px; text-transform:uppercase; letter-spacing:.5px; background:#e0e0e0; border-bottom:1px solid #aaa; }
+.sum-deceased td { color:#888; background:#f8f0f0 !important; }
+.sum-alive td { color:#000; }
+
+/* INTRO SCREEN */
+.intro-overlay {
+  position: fixed; inset: 0; background: #008080;
+  z-index: 1000; display: flex; align-items: center; justify-content: center;
+}
+.intro-overlay.hidden { display: none; }
+.intro-window {
+  background: #c0c0c0; border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: 6px 6px 0 #000; width: 420px;
+}
+.intro-title-bar {
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: white; padding: 4px 6px; font-weight: bold; font-size: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.intro-body { padding: 18px 20px 10px; }
+.intro-logo {
+  text-align: center; margin-bottom: 14px;
+  font-size: 22px; font-weight: bold; letter-spacing: 1px;
+  color: #000080; text-shadow: 1px 1px 0 #fff;
+  border-bottom: 2px solid #808080; padding-bottom: 10px;
+}
+.intro-logo span { font-size: 11px; display: block; color: #555; font-weight: normal; letter-spacing: 2px; margin-top: 2px; }
+.intro-desc {
+  font-size: 11px; line-height: 1.85; color: #222;
+  background: white; border: 2px solid; border-color: #808080 #fff #fff #808080;
+  padding: 8px 10px; margin-bottom: 14px;
+}
+.intro-save-info {
+  font-size: 10px; font-family: "Courier New", monospace;
+  color: #555; background: #e8e8e8; border: 1px solid #aaa;
+  padding: 5px 8px; margin-bottom: 12px; min-height: 20px;
+}
+.intro-btns { display: flex; gap: 8px; justify-content: center; padding-bottom: 14px; }
+
+/* COMPACT ATTRIBUTE ROWS */
+.attr-row { display:flex; align-items:center; gap:3px; margin-bottom:2px; }
+.attr-label { width:72px; font-size:10px; flex-shrink:0; color:#222; }
+.attr-track { flex:1; height:7px; background:#fff; border:1px solid; border-color:#808080 #fff #fff #808080; overflow:hidden; }
+.attr-fill { height:100%; transition:width 0.3s ease; }
+.attr-num { width:22px; text-align:right; font-family:"Courier New",monospace; font-size:10px; color:#333; }
+
+/* COMPACT ATTRIBUTE ROWS */
+.death-screen { min-width:500px; max-width:580px; }
+.death-section { padding:4px 12px 2px; font-weight:bold; font-size:10px; text-transform:uppercase; letter-spacing:.5px; background:#e0e0e0; border-bottom:1px solid #aaa; color:#000; }
+.death-obit { padding:8px 12px; font-size:11px; line-height:1.85; background:white; border-bottom:1px solid #d0d0d0; font-style:italic; color:#333; }
+.death-stats-table { width:100%; border-collapse:collapse; font-size:11px; }
+.death-stats-table td { padding:2px 12px; border-bottom:1px solid #eee; font-family:"Courier New",monospace; }
+.death-stats-table td:first-child { color:#555; width:55%; }
+.death-stats-table td:last-child { font-weight:bold; }
+.death-choices { padding:6px 12px 8px; max-height:120px; overflow-y:auto; background:#fafafa; }
+.death-choice-item { font-size:10px; font-family:"Courier New",monospace; border-bottom:1px solid #eee; padding:2px 0; }
+.death-choice-item .dc-title { color:#000080; font-weight:bold; }
+.death-choice-item .dc-chose { color:#005500; }
+.death-rating { padding:8px 12px; font-size:12px; font-weight:bold; text-align:center; letter-spacing:.5px; }
+
+/* DECISION DIALOG */
+.decision-dialog { min-width: 380px; max-width: 460px; }
+.decision-body { padding: 12px 14px; font-size: 11px; line-height: 1.85; }
+.decision-scenario { margin-bottom: 10px; padding: 6px 8px; background: #f0f0f0; border: 1px solid #aaa; font-style: italic; color: #222; }
+.decision-choices { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.decision-btn {
+  background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 5px 10px; font-family: "MS Sans Serif", Tahoma, sans-serif;
+  font-size: 11px; cursor: pointer; text-align: left; width: 100%;
+}
+.decision-btn:hover { background: #d8d8ff; }
+.decision-btn:active { border-color: #808080 #ffffff #ffffff #808080; }
+.decision-btn .choice-label { font-weight: bold; color: #000080; margin-right: 6px; }
+.decision-outcome { margin-top: 10px; padding: 6px 8px; border: 1px solid #808080; background: white; min-height: 32px; font-family: "Courier New", monospace; font-size: 11px; display: none; }
+.decision-outcome.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-window">
+    <div class="intro-title-bar">🌍 New Lives Classic</div>
+    <div class="intro-body">
+      <div class="intro-logo">
+        New Lives Classic
+        <span>Interactive Life Simulation</span>
+      </div>
+      <div class="intro-desc">
+        You are about to live one of billions of possible lives. You could be born
+        into poverty in rural Ethiopia or comfort in suburban Germany. The circumstances
+        of your birth are not your choice — but some of what follows is.
+        <br><br>
+        Based on <i>Real Lives 2007</i> by Educational Simulations.
+      </div>
+      <div class="intro-save-info" id="introSaveInfo">No saved game found.</div>
+      <div class="intro-btns">
+        <button class="btn btn-bold" style="min-width:110px" onclick="introNewLife()">New Life</button>
+        <button class="btn" style="min-width:110px" id="introContinueBtn" onclick="introContinue()" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="window" id="mainWin">
+
+  <div class="title-bar">
+    <div class="title-bar-left"><span>🌍</span><span>New Lives Classic — Interactive Life Simulation</span></div>
+    <div class="title-bar-buttons">
+      <div class="title-btn">_</div><div class="title-btn" style="font-size:8px">□</div><div class="title-btn">✕</div>
+    </div>
+  </div>
+
+  <div class="menu-bar" id="menuBar">
+    <div class="menu-item" id="menuFile" onclick="toggleMenu('menuFile')">File
+      <div class="dropdown">
+        <div class="dd-item" onclick="newLife()">New Life</div>
+        <div class="dd-separator"></div>
+        <div class="dd-item" id="menuSave" onclick="saveGame()">Save Game</div>
+        <div class="dd-item" id="menuLoad" onclick="loadGame()">Load Saved Game</div>
+        <div class="dd-separator"></div>
+        <div class="dd-item dd-disabled">Exit</div>
+      </div>
+    </div>
+
+    <div class="menu-item disabled" id="menuActions" onclick="toggleMenu('menuActions')">Actions
+      <div class="dropdown">
+        <div class="dd-item has-sub">School or Career <span class="dd-arrow">▶</span>
+          <div class="submenu">
+            <div class="dd-item" id="si_primary"    onclick="enrollSchool('primary')">Enroll in Primary School</div>
+            <div class="dd-item" id="si_secondary"  onclick="enrollSchool('secondary')">Enroll in Secondary School</div>
+            <div class="dd-item" id="si_trade"      onclick="enrollSchool('trade')">Enroll in Vocational School</div>
+            <div class="dd-item" id="si_university" onclick="enrollSchool('university')">Enroll in University</div>
+            <div class="dd-item" id="si_quitschool" onclick="quitSchool()">Quit School</div>
+            <div class="dd-separator"></div>
+            <div class="dd-item" id="si_getjob"     onclick="openJobDialog()">Get a Job or Change Jobs</div>
+            <div class="dd-item" id="si_quitjob"    onclick="quitJob()">Quit Job</div>
+            <div class="dd-separator"></div>
+            <div class="dd-item" id="si_raise"      onclick="askRaise()">Ask for a Raise</div>
+            <div class="dd-item" id="si_overtime"   onclick="toggleOvertime()">Work Overtime</div>
+            <div class="dd-separator"></div>
+            <div class="dd-item" id="si_startbiz"   onclick="openStartBizDialog()">Start a Business</div>
+            <div class="dd-item" id="si_expandbiz"  onclick="expandBusiness()">Expand Business</div>
+            <div class="dd-item" id="si_closebiz"   onclick="closeBusiness()">Close Business</div>
+          </div>
+        </div>
+        <div class="dd-item has-sub">Love and Relationships <span class="dd-arrow">▶</span>
+          <div class="submenu">
+            <div class="dd-item" id="si_marry"   onclick="actionMarry()">Get Married</div>
+            <div class="dd-item" id="si_child"   onclick="actionHaveChild()">Have a Child</div>
+            <div class="dd-item" id="si_divorce" onclick="actionDivorce()">Divorce</div>
+            <div class="dd-item" id="si_spousestudy" onclick="actionSpouseStudy()">Encourage Spouse to Study</div>
+          </div>
+        </div>
+        <div class="dd-item has-sub" id="menuFinances">Finances <span class="dd-arrow">▶</span>
+          <div class="submenu">
+            <div class="dd-item" id="si_sendmoney" onclick="openSendMoneyDialog()">Send Money to Family</div>
+            <div class="dd-item dd-disabled" id="si_budget">Manage Budget</div>
+          </div>
+        </div>
+        <div class="dd-item has-sub" id="menuResidence">Residence <span class="dd-arrow">▶</span>
+          <div class="submenu">
+            <div class="dd-item" id="si_move"       onclick="openMoveDialog()">Move Within Country</div>
+            <div class="dd-item" id="si_emigrate"   onclick="openEmigrateDialog()">Emigrate</div>
+            <div class="dd-item" id="si_returnhome" onclick="actionReturnHome()">Return Home</div>
+          </div>
+        </div>
+        <div class="dd-item has-sub">Leisure Activities <span class="dd-arrow">▶</span>
+          <div class="submenu">
+            <div class="dd-item" id="si_travel"    onclick="actionLeisure('travel')">Travel</div>
+            <div class="dd-item" id="si_religion"  onclick="actionLeisure('religion')">Practice Religion</div>
+            <div class="dd-item" id="si_hobby"     onclick="actionLeisure('hobby')">Pursue a Hobby</div>
+            <div class="dd-item" id="si_volunteer" onclick="actionLeisure('volunteer')">Volunteer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item disabled" id="menuView" onclick="toggleMenu('menuView')">View
+      <div class="dropdown">
+        <div class="dd-item" onclick="openCharSummary()">Character Summary</div>
+        <div class="dd-item" onclick="openFamilyHistory()">Family History</div>
+      </div>
+    </div>
+    <div class="menu-item" id="menuHelp" onclick="toggleMenu('menuHelp')">Help
+      <div class="dropdown"><div class="dd-item dd-disabled">About New Lives Classic</div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="main-layout">
+      <!-- LEFT -->
+      <div class="left-col">
+        <div class="panel">
+          <div class="panel-label">Character</div>
+          <div class="country-box" id="countryBox"><span class="country-placeholder">No active character</span></div>
+          <div style="margin-top:5px;">
+            <div class="char-row"><span class="ci-label">Name</span><span class="ci-value" id="ciName">—</span></div>
+            <div class="char-row"><span class="ci-label">Age</span><span class="ci-value" id="ciAge">—</span></div>
+            <div class="char-row"><span class="ci-label">Gender</span><span class="ci-value" id="ciGender">—</span></div>
+            <div class="char-row"><span class="ci-label">Year</span><span class="ci-value" id="ciYear">—</span></div>
+            <div class="char-row"><span class="ci-label">City</span><span class="ci-value" id="ciCity">—</span></div>
+            <div class="char-row"><span class="ci-label">Wealth</span><span class="ci-value" id="ciWealth">—</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Career &amp; Education</div>
+          <div class="career-row"><span class="cr-label">Education</span><span class="cr-value none" id="crEdu">None</span></div>
+          <div class="career-row"><span class="cr-label">Profession</span><span class="cr-value none" id="crJob">Unemployed</span></div>
+          <div class="career-row"><span class="cr-label">Mo. Income</span><span class="cr-value none" id="crIncome">$0</span></div>
+          <div class="career-row" id="crCondRow" style="display:none"><span class="cr-label">Conditions</span><span class="cr-value" id="crCond" style="color:#880000;font-size:10px;max-width:130px;text-align:right;word-break:break-word"></span></div>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Attributes</div>
+          <div style="font-size:9px;color:#555;font-weight:bold;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px">Physical</div>
+          <div id="attrsPhysical"></div>
+          <div style="font-size:9px;color:#555;font-weight:bold;margin:4px 0 3px;text-transform:uppercase;letter-spacing:.5px">Mental</div>
+          <div id="attrsMental"></div>
+          <div style="font-size:9px;color:#555;font-weight:bold;margin:4px 0 3px;text-transform:uppercase;letter-spacing:.5px">Social</div>
+          <div id="attrsSocial"></div>
+        </div>
+      </div>
+      <!-- RIGHT -->
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel-label">Life Events — Diary</div>
+          <div class="event-log" id="eventLog"><div class="log-placeholder">Press "New Life" to begin your simulation.</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-label" id="finLabel">Finances — Household</div>
+          <table class="fin-table">
+            <thead><tr>
+              <th>Name (Relation)</th><th>Age</th><th>Health</th>
+              <th>Profession</th>
+              <th class="fin-right">Mo. Income</th>
+              <th class="fin-right">Mo. Expenses</th>
+              <th class="fin-right">Net Worth</th>
+            </tr></thead>
+            <tbody id="finBody">
+              <tr><td colspan="7" class="fin-gray" style="text-align:center;background:white;">No active character.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="btn-row">
+            <button class="btn btn-bold" onclick="newLife()">New Life</button>
+            <button class="btn btn-bold" id="ageBtn" onclick="ageAYear()" disabled>Age A Year ▶</button>
+            <button class="btn" id="age10Btn" onclick="age10()" disabled>+5 Years ▶▶</button>
+            <span class="btn-status" id="statusText">No active character.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="sb-section" id="sb1">New Lives Classic</div>
+    <div class="sb-section" id="sb2">Educational Simulations</div>
+    <div class="sb-section sb-right">v2007.3</div>
+  </div>
+
+  <!-- DEATH -->
+  <div class="overlay" id="deathOverlay">
+    <div class="dialog death-screen">
+      <div class="dialog-title"><span>— Life Ended —</span><div class="title-btn" onclick="closeDialog('deathOverlay')">✕</div></div>
+      <div id="deathBody" style="max-height:480px;overflow-y:auto;"></div>
+      <div class="dialog-btns">
+        <button class="btn btn-bold" onclick="newLife()">New Life</button>
+        <button class="btn" onclick="closeDialog('deathOverlay')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOB PICKER -->
+  <div class="overlay" id="jobOverlay">
+    <div class="dialog" style="min-width:380px">
+      <div class="dialog-title"><span>Get a Job or Change Jobs</span><div class="title-btn" onclick="closeDialog('jobOverlay')">✕</div></div>
+      <div class="dialog-body">
+        <div>Select a position from the available jobs below:</div>
+        <div id="jobListbox" class="listbox"></div>
+        <div id="jobDesc" style="font-size:10px;color:#555;min-height:18px;font-family:'Courier New',monospace;"></div>
+      </div>
+      <div class="dialog-btns">
+        <button class="btn btn-bold" onclick="confirmJob()">OK</button>
+        <button class="btn" onclick="closeDialog('jobOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RAISE -->
+  <div class="overlay" id="raiseOverlay">
+    <div class="dialog">
+      <div class="dialog-title"><span>Ask for a Raise</span><div class="title-btn" onclick="closeDialog('raiseOverlay')">✕</div></div>
+      <div class="dialog-body" id="raiseBody"></div>
+      <div class="dialog-btns"><button class="btn btn-bold" onclick="closeDialog('raiseOverlay')">OK</button></div>
+    </div>
+  </div>
+
+  <!-- START BUSINESS -->
+  <div class="overlay" id="startBizOverlay">
+    <div class="dialog" style="min-width:360px">
+      <div class="dialog-title"><span>Start a Business</span><div class="title-btn" onclick="closeDialog('startBizOverlay')">✕</div></div>
+      <div class="dialog-body">
+        <div id="startBizInfo" style="font-size:11px;margin-bottom:8px;line-height:1.7;"></div>
+        <div style="font-size:11px;">Choose your initial investment:</div>
+        <div id="startBizAmounts" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"></div>
+        <div id="startBizDesc" style="font-size:10px;color:#555;min-height:16px;font-family:'Courier New',monospace;margin-top:8px;"></div>
+      </div>
+      <div class="dialog-btns">
+        <button class="btn btn-bold" onclick="confirmStartBiz()">Invest</button>
+        <button class="btn" onclick="closeDialog('startBizOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEND MONEY -->
+  <div class="overlay" id="sendMoneyOverlay">
+    <div class="dialog" style="min-width:360px">
+      <div class="dialog-title"><span>Send Money to Family</span><div class="title-btn" onclick="closeDialog('sendMoneyOverlay')">✕</div></div>
+      <div class="dialog-body">
+        <div>Choose a family member to support:</div>
+        <div id="sendMoneyListbox" class="listbox" style="height:120px;margin-top:6px;"></div>
+        <div style="margin-top:8px;font-size:11px;">Amount to send:</div>
+        <div style="display:flex;gap:6px;margin-top:4px;" id="sendMoneyAmounts"></div>
+        <div id="sendMoneyDesc" style="font-size:10px;color:#555;min-height:16px;font-family:'Courier New',monospace;margin-top:6px;"></div>
+      </div>
+      <div class="dialog-btns">
+        <button class="btn btn-bold" onclick="confirmSendMoney()">Send</button>
+        <button class="btn" onclick="closeDialog('sendMoneyOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVE WITHIN COUNTRY -->
+  <div class="overlay" id="moveOverlay">
+    <div class="dialog" style="min-width:340px">
+      <div class="dialog-title"><span>Move Within Country</span><div class="title-btn" onclick="closeDialog('moveOverlay')">✕</div></div>
+      <div class="dialog-body">
+        <div>Choose a city to move to:</div>
+        <div id="moveListbox" class="listbox" style="height:110px;margin-top:6px;"></div>
+        <div id="moveDesc" style="font-size:10px;color:#555;min-height:16px;font-family:'Courier New',monospace;margin-top:4px;"></div>
+      </div>
+      <div class="dialog-btns">
+        <button class="btn btn-bold" onclick="confirmMove()">Move</button>
+        <button class="btn" onclick="closeDialog('moveOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMIGRATE -->
+  <div class="overlay" id="emigrateOverlay">
+    <div class="dialog" style="min-width:380px">
+      <div class="dialog-title"><span>Emigrate to Another Country</span><div class="title-btn" onclick="closeDialog('emigrateOverlay')">✕</div></div>
+      <div class="dialog-body">
+        <div id="emigrateWarning" style="color:#880000;font-size:10px;margin-bottom:6px;min-height:14px;"></div>
+        <div>Select a destination country:</div>
+        <div id="emigrateListbox" class="listbox" style="margin-top:6px;"></div>
+        <div id="emigrateDesc" style="font-size:10px;color:#555;min-height:16px;font-family:'Courier New',monospace;margin-top:4px;"></div>
+      </div>
+      <div class="dialog-btns">
+        <button class="btn btn-bold" onclick="confirmEmigrate()">Emigrate</button>
+        <button class="btn" onclick="closeDialog('emigrateOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="overlay" id="summaryOverlay">
+    <div class="dialog" style="min-width:400px;max-width:480px">
+      <div class="dialog-title"><span>Character Summary</span><div class="title-btn" onclick="closeDialog('summaryOverlay')">✕</div></div>
+      <div class="dialog-body" id="summaryBody" style="padding:0"></div>
+      <div class="dialog-btns"><button class="btn btn-bold" onclick="closeDialog('summaryOverlay')">Close</button></div>
+    </div>
+  </div>
+
+  <!-- FAMILY HISTORY -->
+  <div class="overlay" id="familyHistoryOverlay">
+    <div class="dialog" style="min-width:460px;max-width:520px">
+      <div class="dialog-title"><span>Family History</span><div class="title-btn" onclick="closeDialog('familyHistoryOverlay')">✕</div></div>
+      <div class="dialog-body" id="familyHistoryBody" style="padding:0;max-height:340px;overflow-y:auto"></div>
+      <div class="dialog-btns"><button class="btn btn-bold" onclick="closeDialog('familyHistoryOverlay')">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="decisionOverlay">
+    <div class="dialog decision-dialog">
+      <div class="dialog-title" id="decisionTitle"><span>Decision</span></div>
+      <div class="decision-body">
+        <div class="decision-scenario" id="decisionScenario"></div>
+        <div id="decisionChoices" class="decision-choices"></div>
+        <div class="decision-outcome" id="decisionOutcome"></div>
+      </div>
+      <div class="dialog-btns">
+        <button class="btn btn-bold" id="decisionContinueBtn" onclick="resolveDecision()" style="display:none">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="infoOverlay">
+    <div class="dialog">
+      <div class="dialog-title" id="infoTitle"><span>Information</span><div class="title-btn" onclick="closeDialog('infoOverlay')">✕</div></div>
+      <div class="dialog-body" id="infoBody"></div>
+      <div class="dialog-btns"><button class="btn btn-bold" onclick="closeDialog('infoOverlay')">OK</button></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════
+const COUNTRIES = [
+  ["China","East Asia",2,140],["India","South Asia",1,138],
+  ["United States","North America",3,33],["Indonesia","Southeast Asia",1,27],
+  ["Pakistan","South Asia",1,23],["Brazil","South America",2,21],
+  ["Nigeria","West Africa",1,21],["Bangladesh","South Asia",1,17],
+  ["Russia","Eastern Europe",2,14],["Ethiopia","East Africa",1,12],
+  ["Mexico","Central America",2,12],["Japan","East Asia",3,12],
+  ["Philippines","Southeast Asia",1,11],["DR Congo","Central Africa",1,10],
+  ["Egypt","North Africa",1,10],["Vietnam","Southeast Asia",2,9],
+  ["Tanzania","East Africa",1,6],["Kenya","East Africa",1,5],
+  ["Germany","Western Europe",3,8],["Sudan","North Africa",1,4],
+  ["Uganda","East Africa",1,4],["Argentina","South America",2,4],
+  ["United Kingdom","Western Europe",3,6],["Colombia","South America",2,5],
+  ["France","Western Europe",3,6],["Canada","North America",3,3],
+  ["Australia","Oceania",3,2],["South Korea","East Asia",3,5],
+  ["Turkey","Middle East",2,8],["Thailand","Southeast Asia",2,7],
+  ["Afghanistan","Central Asia",1,4],["Myanmar","Southeast Asia",1,5],
+  ["Iran","Middle East",2,8],["Ghana","West Africa",1,3],
+  ["Nepal","South Asia",1,3],["Peru","South America",2,3],
+  ["Haiti","Caribbean",1,1],["Bolivia","South America",2,1],
+];
+
+const NAMES = {
+  "East Asia":{m:["Wei","Jian","Ming","Lei","Hao","Yong","Tao","Shen","Kang","Bo","Fei","Long"],f:["Fang","Mei","Xiu","Yan","Ling","Jing","Hong","Xia","Zhen","Hui","Lan","Na"]},
+  "South Asia":{m:["Arjun","Rahul","Vikram","Suresh","Ravi","Amir","Hassan","Imran","Farhan","Nikhil","Dev","Ajay"],f:["Priya","Ananya","Fatima","Ayesha","Meera","Sunita","Asha","Devi","Nadia","Sana","Rekha","Kavita"]},
+  "Southeast Asia":{m:["Budi","Adi","Reza","Hendra","Nguyen","Minh","Duc","Sombat","Chai","Pham","Tran","Doan"],f:["Sari","Dewi","Rina","Linh","Thu","Ngan","Malai","Nook","Jasmine","Rosa","Huong","Lan"]},
+  "West Africa":{m:["Kwame","Emeka","Chidi","Kofi","Seun","Yaw","Ade","Tunde","Nnamdi","Femi","Kojo","Osei"],f:["Amara","Ngozi","Chioma","Adaeze","Abena","Efua","Bola","Toyin","Kemi","Yetunde","Akua","Ama"]},
+  "East Africa":{m:["Abebe","Dawit","Solomon","Tesfaye","Kebede","Musa","Juma","Baraka","Elijah","Samuel","Tadesse","Girma"],f:["Tigist","Meron","Fatuma","Amina","Zawadi","Zuri","Hawa","Grace","Agnes","Beatrice","Hiwot","Tsehay"]},
+  "Central Africa":{m:["Jean","Pierre","Patrice","Moise","Celestin","Emmanuel","Pascal","Bruno","Michel","Dieu"],f:["Marie","Yvonne","Josephine","Claudine","Esperance","Divine","Solange","Berthe","Rosine","Chantal"]},
+  "North Africa":{m:["Ahmed","Mohamed","Omar","Youssef","Khalid","Hassan","Ibrahim","Ali","Tarek","Nasser"],f:["Fatima","Nour","Layla","Yasmin","Hana","Dina","Aya","Rania","Sara","Amira"]},
+  "Western Europe":{m:["James","Thomas","William","Lucas","Noah","Felix","Max","Pierre","Henri","Luca"],f:["Emma","Sophie","Clara","Anna","Mia","Lea","Claire","Marie","Laura","Isabel"]},
+  "Eastern Europe":{m:["Dmitri","Ivan","Alexei","Nikolai","Sergei","Pavel","Viktor","Andrei","Boris","Mikhail"],f:["Natasha","Olga","Irina","Tatiana","Vera","Anastasia","Ekaterina","Nadia","Galina","Lyudmila"]},
+  "North America":{m:["Ethan","Mason","Logan","Jacob","Noah","Liam","Tyler","Ryan","Brandon","Derek"],f:["Emma","Olivia","Ava","Sophia","Isabella","Mia","Charlotte","Abigail","Emily","Madison"]},
+  "South America":{m:["Carlos","Miguel","Alejandro","Diego","Luis","Juan","Andres","Ricardo","Eduardo","Felipe"],f:["Maria","Sofia","Camila","Valentina","Isabella","Lucia","Gabriela","Ana","Paula","Laura"]},
+  "Central America":{m:["Carlos","Jose","Luis","Miguel","Juan","Pedro","Roberto","Fernando","Manuel","Hector"],f:["Maria","Rosa","Ana","Carmen","Guadalupe","Lucia","Isabel","Patricia","Elena","Sandra"]},
+  "Middle East":{m:["Mohammed","Ali","Hassan","Omar","Khalid","Ahmad","Abdullah","Tariq","Samir","Faisal"],f:["Fatima","Zainab","Maryam","Aisha","Nour","Hana","Sara","Rania","Layla","Yasmin"]},
+  "Central Asia":{m:["Ahmad","Rahmat","Noor","Hamid","Khalid","Bashir","Tariq","Yusuf","Omar","Daud"],f:["Fatima","Maryam","Zainab","Bibi","Rahima","Gulnar","Nasrin","Layla","Shabnam","Roya"]},
+  "Caribbean":{m:["Jean","Pierre","Michel","Jacques","Henri","Louis","Remy","Frantz","Edner","Guy"],f:["Marie","Rose","Claudette","Marguerite","Nadine","Yanick","Odette","Gisele","Carline","Yolande"]},
+  "Oceania":{m:["Liam","Noah","Oliver","Jack","Thomas","William","James","Lucas","Henry","Ethan"],f:["Olivia","Charlotte","Ava","Isla","Mia","Grace","Sophie","Chloe","Emily","Ella"]},
+};
+
+const WEALTH_NAMES = {1:"Destitute",2:"Working Class",3:"Comfortable"};
+
+// Cities per country: [name, tier] where tier 1=rural, 2=urban, 3=capital
+// Tier affects: income modifier (urban/capital +10%), health access (+3 for capital, +1 for urban)
+const CITIES = {
+  "China":           [["Beijing",3],["Shanghai",3],["Chengdu",2],["Guangzhou",2],["Rural Hunan",1]],
+  "India":           [["Mumbai",3],["Delhi",3],["Bangalore",2],["Kolkata",2],["Rural Bihar",1]],
+  "United States":   [["New York",3],["Los Angeles",3],["Chicago",2],["Houston",2],["Rural Mississippi",1]],
+  "Indonesia":       [["Jakarta",3],["Surabaya",2],["Bandung",2],["Rural Sumatra",1]],
+  "Pakistan":        [["Karachi",3],["Lahore",2],["Islamabad",3],["Rural Punjab",1]],
+  "Brazil":          [["São Paulo",3],["Rio de Janeiro",3],["Brasília",2],["Rural Nordeste",1]],
+  "Nigeria":         [["Lagos",3],["Abuja",3],["Kano",2],["Rural Delta",1]],
+  "Bangladesh":      [["Dhaka",3],["Chittagong",2],["Rural Sylhet",1]],
+  "Russia":          [["Moscow",3],["Saint Petersburg",3],["Yekaterinburg",2],["Rural Siberia",1]],
+  "Ethiopia":        [["Addis Ababa",3],["Dire Dawa",2],["Rural Oromia",1]],
+  "Mexico":          [["Mexico City",3],["Guadalajara",2],["Monterrey",2],["Rural Oaxaca",1]],
+  "Japan":           [["Tokyo",3],["Osaka",3],["Nagoya",2],["Rural Tohoku",1]],
+  "Philippines":     [["Manila",3],["Cebu City",2],["Davao",2],["Rural Visayas",1]],
+  "DR Congo":        [["Kinshasa",3],["Lubumbashi",2],["Rural Kasai",1]],
+  "Egypt":           [["Cairo",3],["Alexandria",2],["Rural Upper Egypt",1]],
+  "Vietnam":         [["Ho Chi Minh City",3],["Hanoi",3],["Da Nang",2],["Rural Mekong",1]],
+  "Tanzania":        [["Dar es Salaam",3],["Dodoma",2],["Rural Kilimanjaro",1]],
+  "Kenya":           [["Nairobi",3],["Mombasa",2],["Rural Rift Valley",1]],
+  "Germany":         [["Berlin",3],["Munich",3],["Hamburg",2],["Frankfurt",2],["Rural Bavaria",1]],
+  "Sudan":           [["Khartoum",3],["Omdurman",2],["Rural Darfur",1]],
+  "Uganda":          [["Kampala",3],["Entebbe",2],["Rural Gulu",1]],
+  "Argentina":       [["Buenos Aires",3],["Córdoba",2],["Rosario",2],["Rural Patagonia",1]],
+  "United Kingdom":  [["London",3],["Manchester",2],["Birmingham",2],["Rural Wales",1]],
+  "Colombia":        [["Bogotá",3],["Medellín",2],["Cali",2],["Rural Chocó",1]],
+  "France":          [["Paris",3],["Lyon",2],["Marseille",2],["Rural Normandy",1]],
+  "Canada":          [["Toronto",3],["Vancouver",3],["Montreal",2],["Rural Saskatchewan",1]],
+  "Australia":       [["Sydney",3],["Melbourne",3],["Brisbane",2],["Rural Queensland",1]],
+  "South Korea":     [["Seoul",3],["Busan",2],["Incheon",2],["Rural Jeolla",1]],
+  "Turkey":          [["Istanbul",3],["Ankara",3],["Izmir",2],["Rural Anatolia",1]],
+  "Thailand":        [["Bangkok",3],["Chiang Mai",2],["Rural Isan",1]],
+  "Afghanistan":     [["Kabul",3],["Kandahar",2],["Rural Helmand",1]],
+  "Myanmar":         [["Yangon",3],["Mandalay",2],["Rural Shan",1]],
+  "Iran":            [["Tehran",3],["Isfahan",2],["Mashhad",2],["Rural Kerman",1]],
+  "Ghana":           [["Accra",3],["Kumasi",2],["Rural Northern Region",1]],
+  "Nepal":           [["Kathmandu",3],["Pokhara",2],["Rural Terai",1]],
+  "Peru":            [["Lima",3],["Arequipa",2],["Rural Andes",1]],
+  "Haiti":           [["Port-au-Prince",3],["Cap-Haïtien",2],["Rural Artibonite",1]],
+  "Bolivia":         [["La Paz",3],["Santa Cruz",2],["Rural Altiplano",1]],
+};
+
+function getCities(country){ return CITIES[country]||[["Capital City",3],["Urban Area",2],["Rural Area",1]]; }
+function randCity(country){ return pick(getCities(country)); }
+function cityIncomeMod(tier){ return tier===3?1.10:tier===2?1.05:1.0; }
+function cityHealthMod(tier){ return tier===3?3:tier===2?1:0; }
+
+
+const EDU_LABELS = {none:"None",primary:"Primary School",secondary:"Secondary School",trade:"Vocational School",university:"University Degree"};
+const EDU_ORDER = ["none","primary","secondary","trade","university"];
+
+// Sibling count weights by wealth tier [0,1,2,3]
+const SIBLING_WEIGHTS = {
+  1:[[0,10],[1,20],[2,30],[3,40]],
+  2:[[0,20],[1,35],[2,30],[3,15]],
+  3:[[0,35],[1,40],[2,20],[3,5]],
+};
+
+const JOBS = {
+  1:{
+    none:[{t:"Subsistence Farmer",i:28},{t:"Day Laborer",i:32},{t:"Street Vendor",i:38}],
+    primary:[{t:"Factory Worker",i:65},{t:"Market Trader",i:58},{t:"Domestic Worker",i:48}],
+    secondary:[{t:"Shop Clerk",i:95},{t:"Driver",i:88},{t:"Seamstress/Tailor",i:82}],
+    trade:[{t:"Mechanic",i:145},{t:"Electrician",i:155},{t:"Nurse",i:135}],
+    university:[{t:"Teacher",i:180},{t:"Engineer",i:255},{t:"Doctor",i:310},{t:"Civil Servant",i:195}],
+  },
+  2:{
+    none:[{t:"Laborer",i:210},{t:"Street Vendor",i:185}],
+    primary:[{t:"Factory Worker",i:410},{t:"Construction Worker",i:385}],
+    secondary:[{t:"Salesperson",i:610},{t:"Office Clerk",i:560},{t:"Driver",i:530}],
+    trade:[{t:"Electrician",i:920},{t:"Plumber",i:870},{t:"Lab Technician",i:960}],
+    university:[{t:"Teacher",i:1100},{t:"Engineer",i:1850},{t:"Manager",i:2050},{t:"Doctor",i:2600}],
+  },
+  3:{
+    none:[{t:"Laborer",i:1600},{t:"Cleaner",i:1700}],
+    primary:[{t:"Warehouse Worker",i:2300},{t:"Factory Worker",i:2500}],
+    secondary:[{t:"Sales Associate",i:3200},{t:"Office Clerk",i:3050},{t:"Driver",i:3600}],
+    trade:[{t:"Electrician",i:5600},{t:"Plumber",i:5300},{t:"Nurse",i:5900},{t:"Lab Technician",i:5100}],
+    university:[{t:"Teacher",i:5600},{t:"Engineer",i:8600},{t:"Lawyer",i:11500},{t:"Doctor",i:12500},{t:"Manager",i:9200}],
+  },
+};
+
+const BASE_EXPENSES = {1:55,2:720,3:2900};
+const SCHOOL_YEARS = {primary:6,secondary:4,trade:2,university:4};
+const SCHOOL_MIN_AGE = {primary:6,secondary:13,trade:16,university:18};
+const SCHOOL_PREREQ = {primary:null,secondary:"primary",trade:"primary",university:"secondary"};
+
+// ═══════════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════════
+const EV = {
+  infant:[
+    {text:"You developed a fever but recovered with your mother's care.",type:"neutral",h:-2,hap:1,int:0},
+    {text:"Your mother sang to you each night before sleep.",type:"good",h:1,hap:3,int:0},
+    {text:"You were malnourished as an infant.",type:"bad",h:-6,hap:-2,int:0,cond:c=>c.wt===1},
+    {text:"You were vaccinated at the local clinic.",type:"good",h:5,hap:0,int:0,cond:c=>c.wt>=2},
+    {text:"There was no doctor nearby when you fell gravely ill.",type:"bad",h:-7,hap:-3,int:0,cond:c=>c.wt===1},
+    {text:"A drought struck your region and food became scarce.",type:"bad",h:-5,hap:-4,int:0,cond:c=>["East Africa","West Africa","South Asia"].includes(c.region)},
+    {text:"Your grandmother cared for you while your parents worked.",type:"good",h:1,hap:3,int:1},
+    {text:"Flooding near your home caused your family to flee briefly.",type:"bad",h:-3,hap:-4,int:0,cond:c=>["Bangladesh","Vietnam","Philippines"].includes(c.country)},
+  ],
+  child:[
+    {text:"You made a close friend who you played with every day.",type:"good",h:0,hap:5,int:1},
+    {text:"You were bullied at school and came home crying.",type:"bad",h:0,hap:-5,int:0},
+    {text:"You learned to read this year.",type:"good",h:0,hap:3,int:5},
+    {text:"You helped your family work the land during harvest.",type:"neutral",h:2,hap:0,int:1,cond:c=>c.wt===1},
+    {text:"Your school had no books or supplies.",type:"bad",h:0,hap:-2,int:-3,cond:c=>c.wt===1},
+    {text:"You had a teacher who truly inspired you.",type:"good",h:0,hap:3,int:6},
+    {text:"You were ill for several weeks and missed school.",type:"bad",h:-6,hap:-3,int:-1},
+    {text:"Armed conflict broke out near your town.",type:"bad",h:-4,hap:-9,int:0,cond:c=>["DR Congo","Afghanistan","Sudan","Myanmar","Ethiopia"].includes(c.country)},
+    {text:"You won a small prize at school for your work.",type:"good",h:0,hap:6,int:2},
+    {text:"You fell from a tree and broke your arm.",type:"bad",h:-5,hap:-4,int:0},
+    {text:"A close relative died and your family mourned for weeks.",type:"bad",h:0,hap:-6,int:1},
+  ],
+  teen:[
+    {text:"You passed your exams and advanced a grade.",type:"good",h:0,hap:4,int:4},
+    {text:"You failed your exams and had to repeat the year.",type:"bad",h:0,hap:-5,int:-2},
+    {text:"You experienced your first romantic feelings for someone.",type:"neutral",h:0,hap:3,int:0},
+    {text:"You got into a fight and were injured.",type:"bad",h:-5,hap:-4,int:0},
+    {text:"You discovered a passion for music.",type:"good",h:0,hap:6,int:2},
+    {text:"A close friend died suddenly in an accident.",type:"bad",h:0,hap:-9,int:2},
+    {text:"You witnessed violence in your neighborhood.",type:"bad",h:0,hap:-6,int:0},
+    {text:"You read a book that fundamentally changed your thinking.",type:"good",h:0,hap:2,int:6},
+    {text:"You struggled with a serious illness for several months.",type:"bad",h:-8,hap:-5,int:0},
+    {text:"You developed a strong interest in sport.",type:"good",h:3,hap:4,int:0},
+    {text:"Your family's home was robbed.",type:"bad",h:0,hap:-5,int:0},
+  ],
+  young:[
+    {text:"You fell deeply in love.",type:"good",h:0,hap:9,int:0},
+    {text:"Your relationship ended badly.",type:"bad",h:0,hap:-8,int:1},
+    {text:"You were injured in a workplace accident.",type:"bad",h:-9,hap:-5,int:0},
+    {text:"You started a small business.",type:"neutral",h:0,hap:4,int:3},
+    {text:"Your business failed and you lost your savings.",type:"bad",h:0,hap:-9,int:2},
+    {text:"A flood destroyed your home and possessions.",type:"bad",h:-3,hap:-9,int:0,cond:c=>["Bangladesh","Vietnam","Philippines","Indonesia"].includes(c.country)},
+    {text:"You contracted malaria and were bedridden for months.",type:"bad",h:-11,hap:-5,int:0,cond:c=>["Nigeria","Ethiopia","DR Congo","Tanzania","Kenya","Uganda","Ghana"].includes(c.country)},
+    {text:"You traveled abroad for the first time.",type:"good",h:0,hap:6,int:5,cond:c=>c.wt>=2},
+    {text:"You were detained by authorities without clear cause.",type:"bad",h:-2,hap:-9,int:0,cond:c=>["Russia","China","Iran","Afghanistan","Myanmar","Sudan"].includes(c.country)},
+    {text:"Your parents fell ill and you became their caretaker.",type:"neutral",h:0,hap:-3,int:2},
+    {text:"You were conscripted into military service.",type:"bad",h:-3,hap:-5,int:0,cond:c=>["Russia","Turkey","Iran","Ethiopia","South Korea"].includes(c.country)},
+    {text:"You discovered a talent you did not know you had.",type:"good",h:0,hap:6,int:3},
+    {text:"You spent a year caring for a sick family member.",type:"neutral",h:-1,hap:-3,int:2},
+    {text:"You made a decision you would regret for years.",type:"bad",h:0,hap:-6,int:3},
+    {text:"You received unexpected praise that changed how you saw yourself.",type:"good",h:0,hap:7,int:2},
+    {text:"A trusted friend betrayed a secret and damaged your reputation.",type:"bad",h:0,hap:-7,int:0},
+    {text:"You narrowly escaped a dangerous situation on the road.",type:"bad",h:-3,hap:-4,int:1},
+  ],
+  middle:[
+    {text:"A close family member died unexpectedly.",type:"bad",h:0,hap:-9,int:1},
+    {text:"You fell into serious debt.",type:"bad",h:0,hap:-6,int:0},
+    {text:"Years of political instability disrupted daily life.",type:"bad",h:-2,hap:-5,int:0,cond:c=>c.wt===1},
+    {text:"You found a renewed sense of purpose.",type:"good",h:1,hap:7,int:2},
+    {text:"Your marriage became strained.",type:"bad",h:0,hap:-7,int:0},
+    {text:"You were in a car accident.",type:"bad",h:-6,hap:-4,int:0},
+    {text:"A disease outbreak swept through your community.",type:"bad",h:-8,hap:-5,int:0},
+    {text:"You survived a robbery near your home.",type:"bad",h:-1,hap:-6,int:0},
+    {text:"You changed careers and learned new skills.",type:"neutral",h:0,hap:3,int:5},
+    {text:"You reconnected with a childhood friend after many years.",type:"good",h:0,hap:7,int:1},
+    {text:"Your child graduated from school — a proud moment.",type:"good",h:0,hap:8,int:0,cond:c=>c.age>=35},
+    {text:"You were passed over for a promotion you deserved.",type:"bad",h:0,hap:-6,int:0},
+    {text:"You moved your family to a better home.",type:"good",h:2,hap:6,int:0,cond:c=>c.wt>=2},
+    {text:"A long and bitter dispute with a neighbor finally resolved.",type:"good",h:0,hap:5,int:1},
+    {text:"You suffered a miscarriage. The grief was quiet and heavy.",type:"bad",h:-2,hap:-9,int:0},
+    {text:"You witnessed someone in authority abuse their power.",type:"bad",h:0,hap:-5,int:2},
+    {text:"A mentor you admired passed away, leaving a lasting impression.",type:"neutral",h:0,hap:-4,int:3},
+    {text:"You achieved something you had worked toward for years.",type:"good",h:1,hap:9,int:2},
+    {text:"You were involved in a legal dispute that drained time and money.",type:"bad",h:-2,hap:-6,int:0},
+  ],
+  old:[
+    {text:"Your health began to decline noticeably.",type:"bad",h:-7,hap:-4,int:0},
+    {text:"A grandchild was born — a great joy.",type:"good",h:0,hap:8,int:0},
+    {text:"You suffered a mild stroke.",type:"bad",h:-13,hap:-6,int:-3},
+    {text:"You found great peace in your faith.",type:"good",h:1,hap:7,int:0},
+    {text:"An old friend you had known for decades passed away.",type:"bad",h:0,hap:-7,int:0},
+    {text:"You became a respected elder in your community.",type:"good",h:0,hap:6,int:1},
+    {text:"You suffered a heart attack.",type:"bad",h:-16,hap:-5,int:0},
+    {text:"Your spouse died after a long illness.",type:"bad",h:-2,hap:-13,int:0},
+    {text:"You fell and broke your hip.",type:"bad",h:-11,hap:-5,int:0},
+    {text:"Your children visited you regularly.",type:"good",h:1,hap:7,int:0},
+    {text:"You could not afford the medicine you needed.",type:"bad",h:-9,hap:-5,int:0,cond:c=>c.wt===1},
+    {text:"You wrote down your memories and life story.",type:"good",h:0,hap:5,int:2},
+    {text:"Your eyesight began to fail, making daily life harder.",type:"bad",h:-3,hap:-4,int:-2},
+    {text:"You retired and felt the relief of earned freedom.",type:"good",h:2,hap:7,int:0,cond:c=>!c.job&&c.wt>=2},
+    {text:"A grandchild reminded you of yourself at their age.",type:"good",h:0,hap:7,int:1},
+    {text:"You developed a tremor that made your hands unreliable.",type:"bad",h:-4,hap:-5,int:0},
+    {text:"Old friends gathered for a reunion. Several were gone.",type:"neutral",h:0,hap:2,int:2},
+    {text:"You forgave someone you had held a grudge against for years.",type:"good",h:1,hap:8,int:2},
+    {text:"You could no longer live alone and needed help.",type:"bad",h:-2,hap:-6,int:0},
+    {text:"A younger person asked for your advice and truly listened.",type:"good",h:0,hap:6,int:1},
+    {text:"Your memory began to slip in small, unsettling ways.",type:"bad",h:-2,hap:-5,int:-4},
+    {text:"You made peace with the life you had lived.",type:"good",h:1,hap:9,int:2,cond:c=>c.age>=70},
+  ],
+};
+
+const DEATH_CAUSES = {
+  young:["an infection that could not be treated","severe malnutrition","a childhood illness","complications from birth"],
+  mid:["a sudden illness","injuries sustained in conflict","a workplace accident","a preventable disease","violence"],
+  old:["heart failure","old age","a long illness","natural causes","complications from a stroke"],
+};
+const WORK_EVENTS = [
+  {text:"You received a promotion at work.",type:"career",hap:7,int:1,good:true},
+  {text:"Denied a raise.",type:"career",hap:-3,int:0,good:false},
+  {text:"A colleague betrayed your trust.",type:"career",hap:-4,int:0,good:false},
+  {text:"You completed a difficult project and earned praise.",type:"career",hap:5,int:2,good:true},
+  {text:"Your company downsized and colleagues were laid off.",type:"career",hap:-4,int:0,good:false},
+  {text:"You trained a new employee and felt capable.",type:"career",hap:3,int:2,good:true},
+  {text:"A difficult supervisor made your work life miserable.",type:"career",hap:-5,int:0,good:false},
+];
+const SCHOOL_EVENTS = [
+  {text:"You found your studies challenging but rewarding.",type:"school",hap:2,int:3},
+  {text:"You struggled to keep up with coursework.",type:"school",hap:-3,int:0},
+  {text:"You made a good friend at school.",type:"school",hap:4,int:1},
+  {text:"An exam nearly broke you, but you passed.",type:"school",hap:1,int:3},
+  {text:"An inspiring professor changed how you see the world.",type:"school",hap:3,int:5},
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let C = null;   // player character
+let FM = [];    // family members array
+let dead = false;
+let selectedJob = null;
+let pendingDecision = null; // blocks aging when set
+
+// ═══════════════════════════════════════════════════════════════════
+// DECISIONS DATA
+// Each decision: { id, title, scenario, cond(C,FM), choices:[{label,text,apply(C,FM)}] }
+// apply() returns a result string logged to diary
+// ═══════════════════════════════════════════════════════════════════
+const DECISIONS = [
+  {
+    id:"sick_child",
+    title:"A Child Is Ill",
+    scenario:"Your young child has fallen gravely ill. The doctor says treatment is available but costly. What do you do?",
+    cond:(C,FM)=>C.age>=18&&FM.some(p=>p.relation==="child"&&p.alive&&p.age<10),
+    choices:[
+      {label:"A", text:"Spend your savings on treatment.", isAltruistic:true,
+       apply:(C,FM)=>{ const child=FM.find(p=>p.relation==="child"&&p.alive&&p.age<10); const cost=Math.round(BASE_EXPENSES[C.wt]*8); C.savings-=cost; child.health=clamp(child.health+30,1,100); C.happy=clamp(C.happy+5,0,100); return `You spent ${fmt(cost)} on treatment. ${child.name} recovered.`; }},
+      {label:"B", text:"Rely on home remedies and prayer.",
+       apply:(C,FM)=>{ const child=FM.find(p=>p.relation==="child"&&p.alive&&p.age<10); child.health=clamp(child.health-20,1,100); C.happy=clamp(C.happy-4,0,100); return child.health<15?`${child.name}'s condition worsened. You pray it is not too late.`:`${child.name} pulled through, though weakened.`; }},
+    ]
+  },
+  {
+    id:"job_offer",
+    title:"Job Offer",
+    scenario:"You have received an unexpected offer for a better-paying job in another part of the city. It pays more but requires longer hours.",
+    cond:(C,FM)=>C.age>=18&&C.job,
+    choices:[
+      {label:"A", text:"Accept the new job.",
+       apply:(C,FM)=>{ const bump=Math.round(C.job.i*0.3+50); C.job={t:C.job.t,i:C.job.i+bump}; C.happy=clamp(C.happy+3,0,100); C.health=clamp(C.health-3,1,100); return `You accepted. Your income rose by ${fmt(bump)}/month, but the commute is exhausting.`; }},
+      {label:"B", text:"Decline and stay where you are.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+2,0,100); return `You declined the offer. Life continues as before, with a little peace of mind.`; }},
+    ]
+  },
+  {
+    id:"parent_support",
+    title:"Aging Parent Needs Help",
+    scenario:"Your elderly parent can no longer live alone and needs financial support or to move in with you.",
+    cond:(C,FM)=>C.age>=25&&FM.some(p=>["mother","father"].includes(p.relation)&&p.alive&&!p.inHousehold&&p.age>=60),
+    choices:[
+      {label:"A", text:"Send them money each month.",
+       apply:(C,FM)=>{ const parent=FM.find(p=>["mother","father"].includes(p.relation)&&p.alive&&!p.inHousehold&&p.age>=60); const cost=Math.round(BASE_EXPENSES[C.wt]*2); C.savings-=cost*12; C.happy=clamp(C.happy+4,0,100); parent.health=clamp(parent.health+8,1,100); return `You began supporting your ${parent.relation} ${parent.name} financially. It costs but feels right.`; }},
+      {label:"B", text:"Move them into your household.",
+       apply:(C,FM)=>{ const parent=FM.find(p=>["mother","father"].includes(p.relation)&&p.alive&&!p.inHousehold&&p.age>=60); parent.inHousehold=true; C.happy=clamp(C.happy+3,0,100); parent.health=clamp(parent.health+5,1,100); return `Your ${parent.relation} ${parent.name} moved in. The house is fuller now.`; }},
+      {label:"C", text:"You cannot afford to help right now.",
+       apply:(C,FM)=>{ const parent=FM.find(p=>["mother","father"].includes(p.relation)&&p.alive&&!p.inHousehold&&p.age>=60); C.happy=clamp(C.happy-6,0,100); parent.health=clamp(parent.health-5,1,100); return `You had no means to help. The guilt weighs on you.`; }},
+    ]
+  },
+  {
+    id:"bribe",
+    title:"Official Demands a Bribe",
+    scenario:"A government official is blocking your paperwork — a permit, a license, a document you need. He makes it clear a payment would make things move faster.",
+    cond:(C,FM)=>C.age>=18&&C.wt<=2,
+    choices:[
+      {label:"A", text:"Pay the bribe.",
+       apply:(C,FM)=>{ const cost=Math.round(BASE_EXPENSES[C.wt]*3); C.savings-=cost; C.happy=clamp(C.happy-2,0,100); return `You paid ${fmt(cost)}. The paperwork was processed the next day. You feel dirty.`; }},
+      {label:"B", text:"Refuse and wait out the system.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy-5,0,100); C.intel=clamp(C.intel+2,0,100); return `You refused. Months passed. The paperwork was eventually processed — or abandoned entirely.`; }},
+    ]
+  },
+  {
+    id:"drought_food",
+    title:"Food Shortage",
+    scenario:"A prolonged drought has caused food prices to spike. Your family is struggling to eat. Someone offers you work that is dangerous but well-paid.",
+    cond:(C,FM)=>C.wt===1&&C.age>=16,
+    choices:[
+      {label:"A", text:"Take the dangerous work.",
+       apply:(C,FM)=>{ const gain=Math.round(BASE_EXPENSES[1]*6); C.savings+=gain; C.health=clamp(C.health-8,1,100); C.happy=clamp(C.happy-3,0,100); return `You took the work. The pay kept your family fed, but the toll on your body was real.`; }},
+      {label:"B", text:"Seek help from neighbors and community.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+2,0,100); C.health=clamp(C.health-3,1,100); return `Your community shared what little it had. You survived, barely.`; }},
+    ]
+  },
+  {
+    id:"scholarship",
+    title:"Scholarship Opportunity",
+    scenario:"A scholarship has been offered to a bright student in your region. Someone has nominated you. It would cover secondary school fees entirely.",
+    cond:(C,FM)=>C.age>=12&&C.age<=16&&C.wt===1&&C.education==="primary"&&!C.inSchool,
+    choices:[
+      {label:"A", text:"Accept the scholarship.",
+       apply:(C,FM)=>{ C.inSchool=true; C.schoolType="secondary"; C.schoolEndAge=C.age+4; C.happy=clamp(C.happy+8,0,100); C.intel=clamp(C.intel+4,0,100); return `You accepted the scholarship. You will begin secondary school immediately.`; }},
+      {label:"B", text:"Decline — your family needs your labor.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy-4,0,100); return `You turned down the scholarship to help your family. The opportunity passed.`; }},
+    ]
+  },
+  {
+    id:"medical_diagnosis",
+    title:"Medical Diagnosis",
+    scenario:"A routine checkup reveals a serious condition. The doctor recommends immediate treatment, but it will drain your savings.",
+    cond:(C,FM)=>C.age>=35&&C.health<60,
+    choices:[
+      {label:"A", text:"Pursue treatment immediately.",
+       apply:(C,FM)=>{ const cost=Math.round(BASE_EXPENSES[C.wt]*15); C.savings-=cost; C.health=clamp(C.health+20,1,100); C.happy=clamp(C.happy+3,0,100); removeCondition("chronic_illness"); removeCondition("heart_disease"); return `You underwent treatment. It cost ${fmt(cost)} but your health improved significantly.`; }},
+      {label:"B", text:"Delay treatment — you cannot afford it now.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-10,1,100); C.happy=clamp(C.happy-5,0,100); return `You delayed treatment. Your condition gradually worsened.`; }},
+    ]
+  },
+  {
+    id:"war_flee",
+    title:"Conflict in Your Region",
+    scenario:"Fighting has broken out near your home. Armed groups are moving through the area. Some neighbors are fleeing, others are staying.",
+    cond:(C,FM)=>C.wt===1&&["DR Congo","Afghanistan","Sudan","Myanmar","Ethiopia","Nigeria","Haiti"].includes(C.country),
+    choices:[
+      {label:"A", text:"Flee with your family to a safer area.",
+       apply:(C,FM)=>{ const cost=Math.round(BASE_EXPENSES[1]*4); C.savings-=cost; C.health=clamp(C.health-2,1,100); C.happy=clamp(C.happy-4,0,100); return `You fled with what you could carry. You found relative safety elsewhere, for now.`; }},
+      {label:"B", text:"Stay and protect your home.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-10,1,100); C.happy=clamp(C.happy-8,0,100); return `You stayed. The violence came close. You survived, but the experience left a mark.`; }},
+    ]
+  },
+  {
+    id:"inheritance",
+    title:"A Relative Leaves You Something",
+    scenario:"A distant relative has died and left you a small inheritance. You could save it, or invest it in something.",
+    cond:(C,FM)=>C.age>=20,
+    choices:[
+      {label:"A", text:"Save the money.",
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*18); C.savings+=amt; C.happy=clamp(C.happy+3,0,100); return `You saved ${fmt(amt)}. A small but welcome cushion.`; }},
+      {label:"B", text:"Invest in a small business.",
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*18); const success=Math.random()<0.45; if(success){ C.savings+=Math.round(amt*2.5); C.happy=clamp(C.happy+7,0,100); return `Your investment paid off. You gained ${fmt(Math.round(amt*2.5))}.`; } else { C.happy=clamp(C.happy-5,0,100); return `The business failed. The inheritance is gone.`; }}},
+      {label:"C", text:"Spend it on your family.", isAltruistic:true,
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*18); C.happy=clamp(C.happy+9,0,100); for(const p of FM.filter(q=>q.alive&&q.inHousehold)) p.health=clamp(p.health+4,1,100); return `You spent ${fmt(amt)} on your family. The joy it brought was worth more than the money.`; }},
+      {label:"W", text:"[Wisdom] Give to those in greater need — keep only what you require.", isAltruistic:true, isWise:true,
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*12); C.savings+=amt; C.happy=clamp(C.happy+12,0,100); C.wisdom=clamp((C.wisdom||10)+3,0,100); return `You gave generously and kept only what you needed. Something settled in you that money never had.`; }},
+    ]
+  },
+  {
+    id:"teenage_trouble",
+    title:"A Child in Trouble",
+    scenario:"Your teenage child has been caught skipping school and running with a bad crowd. The school is threatening expulsion.",
+    cond:(C,FM)=>C.age>=30&&FM.some(p=>p.relation==="child"&&p.alive&&p.age>=13&&p.age<=17),
+    choices:[
+      {label:"A", text:"Discipline them strictly.",
+       apply:(C,FM)=>{ const child=FM.find(p=>p.relation==="child"&&p.alive&&p.age>=13&&p.age<=17); child.health=clamp(child.health+0,1,100); C.happy=clamp(C.happy-3,0,100); return `You came down hard. ${child.name} resented it, but stayed in school.`; }},
+      {label:"B", text:"Talk to them and try to understand.",
+       apply:(C,FM)=>{ const child=FM.find(p=>p.relation==="child"&&p.alive&&p.age>=13&&p.age<=17); C.happy=clamp(C.happy+2,0,100); C.intel=clamp(C.intel+1,0,100); return `You listened. ${child.name} opened up about pressures you hadn't seen. Things slowly improved.`; }},
+      {label:"C", text:"Do nothing — they'll figure it out.",
+       apply:(C,FM)=>{ const child=FM.find(p=>p.relation==="child"&&p.alive&&p.age>=13&&p.age<=17); child.health=clamp(child.health-3,1,100); return `You stepped back. ${child.name} drifted further from school.`; }},
+    ]
+  },
+  {
+    id:"spouse_job",
+    title:"Spouse Wants to Work",
+    scenario:"Your spouse has been offered a job. The income would help, but it means less time at home and the children would need other care.",
+    cond:(C,FM)=>FM.some(p=>p.relation==="spouse"&&p.alive&&!p.job)&&FM.some(p=>p.relation==="child"&&p.alive&&p.age<10),
+    choices:[
+      {label:"A", text:"Encourage them to take the job.",
+       apply:(C,FM)=>{ const sp=FM.find(p=>p.relation==="spouse"&&p.alive); sp.job=randJob(C.wt,sp.edu||"primary"); C.happy=clamp(C.happy+2,0,100); return `${sp.name} began working as a ${sp.job.t}. The extra income helps.`; }},
+      {label:"B", text:"Ask them to stay home with the children.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+3,0,100); const sp=FM.find(p=>p.relation==="spouse"&&p.alive); return `${sp.name} stayed home. Your children are well cared for.`; }},
+    ]
+  },
+  {
+    id:"loan_request",
+    title:"Family Member Asks for a Loan",
+    scenario:"A sibling or close relative needs money urgently — medical bills, debt trouble. They promise to repay you, but you are not certain they can.",
+    cond:(C,FM)=>C.age>=20&&C.savings>0&&FM.some(p=>p.relation==="sibling"&&p.alive),
+    choices:[
+      {label:"A", text:"Give them the money.",
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*6); C.savings-=amt; C.happy=clamp(C.happy+4,0,100); const repaid=Math.random()<0.45; if(repaid){ C.savings+=amt; return `You gave ${fmt(amt)}. They repaid you in full. Your relationship is stronger for it.`; } return `You gave ${fmt(amt)}. They never repaid it. You never brought it up.`; }},
+      {label:"B", text:"Decline — you cannot risk your savings.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy-4,0,100); return `You declined. The relationship cooled. Some things are not easily forgiven.`; }},
+    ]
+  },
+  {
+    id:"political_pressure",
+    title:"Pressured to Support a Political Group",
+    scenario:"A powerful local political faction is pressuring you to publicly declare your support. Refusing could have consequences.",
+    cond:(C,FM)=>C.age>=20&&C.wt<=2&&["Russia","China","Iran","Ethiopia","Turkey","Myanmar","Sudan","DR Congo","Nigeria"].includes(C.country),
+    choices:[
+      {label:"A", text:"Comply to avoid trouble.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy-5,0,100); C.intel=clamp(C.intel-2,0,100); return `You complied. Life continued undisturbed. Something felt hollow.`; }},
+      {label:"B", text:"Refuse quietly and keep a low profile.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-4,1,100); C.happy=clamp(C.happy-3,0,100); return `You refused. There were small harassments afterward — nothing overt, but enough to unsettle you.`; }},
+    ]
+  },
+  {
+    id:"education_child",
+    title:"Your Child's Education",
+    scenario:"Your child is approaching school age. Education costs money and time, but illiteracy will limit their whole life.",
+    cond:(C,FM)=>C.age>=24&&C.wt===1&&FM.some(p=>p.relation==="child"&&p.alive&&p.age>=6&&p.age<=8),
+    choices:[
+      {label:"A", text:"Scrape together the fees and enroll them.",
+       apply:(C,FM)=>{ const cost=Math.round(BASE_EXPENSES[1]*3); C.savings-=cost; C.happy=clamp(C.happy+5,0,100); const child=FM.find(p=>p.relation==="child"&&p.alive&&p.age>=6&&p.age<=8); child.health=clamp(child.health+3,1,100); return `You enrolled ${child.name} in school. They walked in nervously on the first day.`; }},
+      {label:"B", text:"They must work to help the family instead.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy-5,0,100); const child=FM.find(p=>p.relation==="child"&&p.alive&&p.age>=6&&p.age<=8); const gain=Math.round(BASE_EXPENSES[1]*1.5); C.savings+=gain; return `${child.name} began working alongside you instead. The money helped, but the cost was invisible.`; }},
+    ]
+  },
+  {
+    id:"accident_savings",
+    title:"Unexpected Crisis",
+    scenario:"Your home has been seriously damaged — by fire, storm, or flood. Repairs are urgent and costly.",
+    cond:(C,FM)=>C.age>=20&&C.savings>0,
+    choices:[
+      {label:"A", text:"Pay for repairs from your savings.",
+       apply:(C,FM)=>{ const cost=Math.round(BASE_EXPENSES[C.wt]*12); C.savings-=cost; C.happy=clamp(C.happy-2,0,100); return `You paid ${fmt(cost)} for repairs. The house is livable again, though your savings took a hit.`; }},
+      {label:"B", text:"Make do with temporary fixes.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-3,1,100); C.happy=clamp(C.happy-5,0,100); for(const p of FM.filter(q=>q.alive&&q.inHousehold)) p.health=clamp(p.health-3,1,100); return `You patched what you could. The living conditions were hard on everyone.`; }},
+    ]
+  },
+  {
+    id:"remarry",
+    title:"A Second Chance at Love",
+    scenario:"Some time has passed since your loss or divorce. Someone new has entered your life and expressed serious interest in you.",
+    cond:(C,FM)=>C.age>=25&&!FM.find(p=>p.relation==="spouse"&&p.alive)&&(FM.find(p=>p.relation==="ex-spouse")||FM.find(p=>p.relation==="spouse"&&!p.alive)),
+    choices:[
+      {label:"A", text:"Open your heart again.",
+       apply:(C,FM)=>{ const gender=C.gender==="Male"?"Female":"Male"; const sp=makePerson("spouse",randName(C.region,gender),gender,C.age+Math.floor(Math.random()*8)-3,C.wt,C.region); FM.push(sp); C.happy=clamp(C.happy+9,0,100); return `You and ${sp.name} were married. Life felt new again.`; }},
+      {label:"B", text:"You are not ready.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy-2,0,100); return `You kindly declined. Some wounds take longer to heal.`; }},
+    ]
+  },
+  {
+    id:"spiritual_crisis",
+    title:"A Crisis of Faith",
+    scenario:"A series of hardships has shaken your beliefs. You find yourself questioning what you have always taken for granted.",
+    cond:(C,FM)=>C.age>=30&&C.happy<45,
+    choices:[
+      {label:"A", text:"Lean deeper into your faith for comfort.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+8,0,100); return `You found solace in prayer and community. Not answers — but peace.`; }},
+      {label:"B", text:"Seek answers through reading and reflection.",
+       apply:(C,FM)=>{ C.intel=clamp(C.intel+5,0,100); C.happy=clamp(C.happy+3,0,100); return `You read widely and thought deeply. Your worldview shifted, slowly, into something more your own.`; }},
+      {label:"C", text:"Push the questions aside and keep moving.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+1,0,100); return `You buried the questions under work and routine. They stayed buried, mostly.`; }},
+    ]
+  },
+  {
+    id:"emigrate",
+    title:"A Chance to Emigrate",
+    scenario:"A distant relative living abroad says they can sponsor you. It would mean leaving everything you know for an uncertain future.",
+    cond:(C,FM)=>C.wt===1&&C.age>=18&&C.age<=40,
+    choices:[
+      {label:"A", text:"Go. Start a new life abroad.",
+       apply:(C,FM)=>{ C.wt=2; C.happy=clamp(C.happy-4,0,100); C.intel=clamp(C.intel+4,0,100); C.health=clamp(C.health+3,1,100); for(const p of FM.filter(q=>q.inHousehold&&q.relation!=="spouse"&&q.relation!=="child")){ p.inHousehold=false; } return `You left. The journey was long and disorienting. But your prospects are better now.`; }},
+      {label:"B", text:"Stay. Your roots are here.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+3,0,100); return `You stayed. Whatever came next, it would come here, among your people.`; }},
+    ]
+  },
+  {
+    id:"retirement_decision",
+    title:"Time to Retire?",
+    scenario:"You are getting older and your body is tired. Retirement would mean less income but more rest. You are not sure you can afford to stop.",
+    cond:(C,FM)=>C.age>=58&&C.job,
+    choices:[
+      {label:"A", text:"Retire now.",
+       apply:(C,FM)=>{ C.job=null; C.overtime=false; C.happy=clamp(C.happy+7,0,100); C.health=clamp(C.health+4,1,100); return `You retired. The mornings are quieter now. You feel the years lifting off you slightly.`; }},
+      {label:"B", text:"Keep working — you need the income.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-3,1,100); C.happy=clamp(C.happy+2,0,100); return `You kept working. The paycheck mattered more than the rest.`; }},
+    ]
+  },
+  {
+    id:"windfall",
+    title:"Unexpected Windfall",
+    scenario:"Through luck or circumstance — a lottery, a land sale, a business deal — you have come into a significant sum of money unexpectedly.",
+    cond:(C,FM)=>C.age>=25&&Math.random()<0.5,
+    choices:[
+      {label:"A", text:"Save and invest it carefully.",
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*30); C.savings+=amt; C.happy=clamp(C.happy+5,0,100); return `You invested wisely. ${fmt(amt)} added to your net worth.`; }},
+      {label:"B", text:"Improve your family's quality of life.",
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*30); C.savings+=Math.round(amt*0.3); C.happy=clamp(C.happy+10,0,100); for(const p of FM.filter(q=>q.alive&&q.inHousehold)) p.health=clamp(p.health+6,1,100); return `You spent generously on your family. The house improved. Spirits lifted.`; }},
+      {label:"C", text:"Give a portion to those in greater need.",
+       apply:(C,FM)=>{ const amt=Math.round(BASE_EXPENSES[C.wt]*15); C.savings+=amt; C.happy=clamp(C.happy+12,0,100); C.intel=clamp(C.intel+2,0,100); return `You gave half away. The gratitude of others filled something in you that money never had.`; }},
+    ]
+  },
+  {
+    id:"spouse_illness",
+    title:"Your Spouse Is Seriously Ill",
+    scenario:"Your spouse has been diagnosed with a serious illness. Treatment exists but is expensive and uncertain.",
+    cond:(C,FM)=>FM.some(p=>p.relation==="spouse"&&p.alive&&p.health<40),
+    choices:[
+      {label:"A", text:"Spend whatever it takes on treatment.",
+       apply:(C,FM)=>{ const sp=FM.find(p=>p.relation==="spouse"&&p.alive&&p.health<40); const cost=Math.round(BASE_EXPENSES[C.wt]*20); C.savings-=cost; sp.health=clamp(sp.health+25,1,100); C.happy=clamp(C.happy+4,0,100); return `You spent ${fmt(cost)} on treatment. ${sp.name} recovered, slowly.`; }},
+      {label:"B", text:"Seek lower-cost alternatives.",
+       apply:(C,FM)=>{ const sp=FM.find(p=>p.relation==="spouse"&&p.alive&&p.health<40); const cost=Math.round(BASE_EXPENSES[C.wt]*6); C.savings-=cost; sp.health=clamp(sp.health+8,1,100); return `You found cheaper care. It helped some. ${sp.name} remains fragile.`; }},
+    ]
+  },
+  {
+    id:"community_role",
+    title:"Called to Lead",
+    scenario:"Your community — village, neighborhood, or workplace — wants you to take on a leadership role. It is unpaid but respected.",
+    cond:(C,FM)=>C.age>=35&&C.intel>55,
+    choices:[
+      {label:"A", text:"Accept the responsibility.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+8,0,100); C.intel=clamp(C.intel+3,0,100); C.health=clamp(C.health-2,1,100); return `You took on the role. It was exhausting and occasionally thankless, but meaningful.`; }},
+      {label:"B", text:"Decline — your family comes first.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+2,0,100); return `You declined. Your family appreciated the time you kept for them.`; }},
+    ]
+  },
+  {
+    id:"addiction",
+    title:"A Troubling Habit",
+    scenario:"To cope with stress, you have developed a habit — drinking, gambling, or something else — that is starting to affect your life.",
+    cond:(C,FM)=>C.age>=25&&C.happy<40,
+    choices:[
+      {label:"A", text:"Confront it and seek help.",
+       apply:(C,FM)=>{ C.happy=clamp(C.happy+6,0,100); C.health=clamp(C.health+3,1,100); removeCondition("addiction"); removeCondition("depression"); return `It was hard. But you faced it. The road back was slow and you stumbled often.`; }},
+      {label:"B", text:"You have it under control.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-6,1,100); C.happy=clamp(C.happy-4,0,100); C.savings-=Math.round(BASE_EXPENSES[C.wt]*3); addCondition("addiction"); return `You told yourself it was fine. The habit deepened quietly.`; }},
+    ]
+  },
+  {
+    id:"natural_disaster",
+    title:"Natural Disaster",
+    scenario:"A major earthquake, flood, or storm has struck your region, causing widespread destruction.",
+    cond:(C,FM)=>C.wt<=2&&["Bangladesh","Indonesia","Philippines","Nepal","Haiti","India","Vietnam","Peru","Bolivia","Ethiopia","Pakistan"].includes(C.country),
+    choices:[
+      {label:"A", text:"Help your neighbors as well as yourself.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-5,1,100); C.happy=clamp(C.happy+5,0,100); const cost=Math.round(BASE_EXPENSES[C.wt]*5); C.savings-=cost; return `You helped neighbors search rubble and share food. The community remembered.`; }},
+      {label:"B", text:"Focus entirely on your own family.",
+       apply:(C,FM)=>{ C.health=clamp(C.health-3,1,100); C.happy=clamp(C.happy-2,0,100); const cost=Math.round(BASE_EXPENSES[C.wt]*8); C.savings-=cost; return `You focused on your family. Everyone survived. Others were less fortunate.`; }},
+    ]
+  },
+];
+
+// Track fired decision IDs so they don't repeat
+const firedDecisions = new Set();
+
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+const rng = n => Math.floor(Math.random()*n);
+function wRand(pairs){
+  const total=pairs.reduce((s,[,w])=>s+w,0);
+  let r=Math.random()*total;
+  for(const [item,w] of pairs){ r-=w; if(r<=0) return item; }
+  return pairs[pairs.length-1][0];
+}
+const CURRENCY = {
+  "United States":"$","Canada":"$","Australia":"$",
+  "United Kingdom":"£","Germany":"€","France":"€",
+  "Japan":"¥","China":"¥","South Korea":"₩",
+  "India":"₹","Nepal":"₹","Bangladesh":"৳","Pakistan":"₨",
+  "Nigeria":"₦","Ghana":"₵","Ethiopia":"Br","Kenya":"Ksh","Tanzania":"TSh",
+  "Uganda":"USh","DR Congo":"FC","Sudan":"SDG","Eritrea":"Nfk",
+  "Russia":"₽","Turkey":"₺","Iran":"﷼","Egypt":"E£",
+  "Brazil":"R$","Argentina":"$","Colombia":"$","Peru":"S/.","Bolivia":"Bs",
+  "Mexico":"$","Haiti":"G","Vietnam":"₫","Thailand":"฿",
+  "Indonesia":"Rp","Philippines":"₱","Myanmar":"K","Cambodia":"₭",
+  "Afghanistan":"Af",
+};
+function getCurrency(){ return C?(CURRENCY[C.country]||"$"):"$"; }
+function fmt(n,sym){
+  if(n===null||n===undefined) return (sym||getCurrency())+"0";
+  const s=sym||getCurrency();
+  const abs=Math.abs(Math.round(n));
+  return (n<0?"-"+s:s)+abs.toLocaleString();
+}
+function randName(region,gender){
+  const pool=NAMES[region]||NAMES["North America"];
+  return pick(gender==="Male"?pool.m:pool.f);
+}
+function randJob(wt,edu){
+  // give NPC a job based on wealth/education
+  const tier=JOBS[wt]; if(!tier) return null;
+  const maxIdx=EDU_ORDER.indexOf(edu);
+  let pool=[];
+  for(let i=0;i<=maxIdx;i++) pool=pool.concat(tier[EDU_ORDER[i]]||[]);
+  if(!pool.length) return null;
+  const j=pick(pool);
+  return {t:j.t,i:j.i};
+}
+function randEdu(wt){
+  // generate a plausible education for NPC parent
+  const r=Math.random();
+  if(wt===1) return r<0.5?"none":r<0.85?"primary":"secondary";
+  if(wt===2) return r<0.1?"none":r<0.3?"primary":r<0.7?"secondary":r<0.9?"trade":"university";
+  return r<0.05?"none":r<0.15?"primary":r<0.3?"secondary":r<0.5?"trade":"university";
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FAMILY SYSTEM
+// ═══════════════════════════════════════════════════════════════════
+
+// Create a family member object
+function makePerson(relation, name, gender, age, wt, region, edu){
+  edu = edu || randEdu(wt);
+  const job = age >= 16 ? randJob(wt, edu) : null;
+  return {
+    id: Math.random().toString(36).slice(2),
+    relation, name, gender, age,
+    health: clamp(50+rng(40)+(wt*5), 10, 100),
+    edu, job,
+    alive: true,
+    inHousehold: true,
+    conditions: [],
+  };
+}
+
+function generateFamily(){
+  FM = [];
+  const {region, wt, birthYear} = C;
+
+  // Parents
+  const momAge = 20+rng(16);
+  const dadAge = 22+rng(19);
+  const momEdu = randEdu(wt);
+  const dadEdu = randEdu(wt);
+  FM.push(makePerson("mother", randName(region,"Female"), "Female", momAge, wt, region, momEdu));
+  FM.push(makePerson("father", randName(region,"Male"),   "Male",   dadAge, wt, region, dadEdu));
+
+  // Siblings
+  const sibCount = wRand(SIBLING_WEIGHTS[wt]);
+  for(let i=0;i<sibCount;i++){
+    const sibAge = Math.max(0, rng(12)-1); // 0-11 at player birth
+    const sibGender = Math.random()<0.5?"Male":"Female";
+    FM.push(makePerson("sibling", randName(region, sibGender), sibGender, sibAge, wt, region, "none"));
+  }
+}
+
+function ageFamilyMembers(yr){
+  for(const p of FM){
+    if(!p.alive) continue;
+    p.age++;
+
+    // Health decay
+    if(p.age>50) p.health=clamp(p.health-1,1,100);
+    if(p.age>65) p.health=clamp(p.health-2,1,100);
+    if(p.age>75) p.health=clamp(p.health-3,1,100);
+    // Random health fluctuation
+    p.health=clamp(p.health+(Math.random()<0.4?1:-1),1,100);
+
+    // Apply existing conditions
+    for(const cond of (p.conditions||[])){
+      p.health=clamp(p.health+cond.hPenalty,1,100);
+    }
+    // Acquire new conditions probabilistically
+    if(!p.conditions) p.conditions=[];
+    if(p.age>60 && Math.random()<0.05 && !p.conditions.find(c=>c.id==="chronic_illness"))
+      p.conditions.push({id:"chronic_illness",...CONDITION_DEFS.chronic_illness});
+    if(p.age>70 && Math.random()<0.04 && !p.conditions.find(c=>c.id==="heart_disease"))
+      p.conditions.push({id:"heart_disease",...CONDITION_DEFS.heart_disease});
+    if(C.wt===1 && p.age>5 && Math.random()<0.03 && !p.conditions.find(c=>c.id==="malnutrition"))
+      p.conditions.push({id:"malnutrition",...CONDITION_DEFS.malnutrition});
+
+    // Sibling leaves household at 18
+    if(p.relation==="sibling" && p.inHousehold && p.age===18){
+      p.inHousehold=false;
+      log(yr,`Your sibling ${p.name} grew up and left the household.`,"family");
+    }
+
+    // Children leave at 18
+    if(p.relation==="child" && p.inHousehold && p.age===18){
+      p.inHousehold=false;
+      // Assign education based on player wealth + decisions made
+      const eduDecision=C.choiceLog&&C.choiceLog.find(d=>d.title==="Your Child's Education");
+      const eduRoll=Math.random();
+      let childEdu="none";
+      if(C.wt===3)        childEdu=eduRoll<0.15?"secondary":eduRoll<0.55?"trade":"university";
+      else if(C.wt===2)   childEdu=eduRoll<0.2?"primary":eduRoll<0.6?"secondary":eduRoll<0.85?"trade":"university";
+      else if(eduDecision&&eduDecision.chosen==="A") childEdu=eduRoll<0.5?"primary":"secondary";
+      else                childEdu=eduRoll<0.6?"none":"primary";
+      p.edu=childEdu;
+      const childJob=randJob(C.wt, childEdu);
+      if(childJob) p.job=childJob;
+      const jobDesc=childJob?`found work as a ${childJob.t}`:"is still looking for work";
+      log(yr,`Your child ${p.name} turned 18 and left home. They completed ${EDU_LABELS[childEdu]} and ${jobDesc}.`,"family");
+      C.happy=clamp(C.happy+2,0,100);
+    }
+
+    // Spouse school graduation
+    if(p.relation==="spouse" && p.inSchool && p.age>=p.schoolEndAge){
+      p.edu=p.schoolType;
+      p.inSchool=false;
+      const newJob=randJob(C.wt, p.edu);
+      if(newJob){ p.job=newJob; }
+      log(yr,`${p.name} completed their ${EDU_LABELS[p.schoolType]} and returned to work as a ${p.job?p.job.t:"professional"}.`,"school");
+      p.schoolType=null; p.schoolEndAge=null;
+      C.happy=clamp(C.happy+4,0,100);
+    }
+
+    // NPC job events
+    if(p.inHousehold && p.age>=16){
+      if(p.job){
+        // Job loss
+        if(Math.random()<0.04){
+          p.job=null;
+          log(yr,`${relationLabel(p)} ${p.name} lost their job.`,"bad");
+          C.happy=clamp(C.happy-2,0,100);
+        } else {
+          // Annual raise (6% chance, 4–9%)
+          if(Math.random()<0.06){
+            const pct=0.04+Math.random()*0.05;
+            p.job={...p.job, i:Math.round(p.job.i*(1+pct))};
+          }
+          // Spouse retirement at 60+
+          if(p.relation==="spouse" && p.age>=60 && C.wt>=2 && Math.random()<0.08){
+            p.job=null;
+            log(yr,`Your ${p.relation} ${p.name} retired.`,"family");
+            C.happy=clamp(C.happy+2,0,100);
+          }
+        }
+      } else {
+        // Re-employment: 12% chance per year
+        if(Math.random()<0.12){
+          const newJob=randJob(C.wt, p.edu||"none");
+          if(newJob){
+            p.job=newJob;
+            log(yr,`${relationLabel(p)} ${p.name} found work as a ${p.job.t}.`,"family");
+          }
+        }
+      }
+    }
+
+    // Departed children — occasional contact events
+    if(p.relation==="child" && !p.inHousehold && p.alive && p.age>=19){
+      const yearsSince=p.age-18;
+      // Good news every 8–12 years
+      if(yearsSince>0 && yearsSince%pick([8,9,10,11,12])===0 && Math.random()<0.5){
+        const msgs=[
+          `You received word from your child ${p.name}. They are doing well.`,
+          `${p.name} visited you briefly. They seem to be managing on their own.`,
+          `You heard from ${p.name} — they got a promotion at work.`,
+        ];
+        log(yr,pick(msgs),"family");
+        C.happy=clamp(C.happy+3,0,100);
+      }
+      // Hard times — small financial ask (rare)
+      if(Math.random()<0.025 && C.savings>0){
+        const amt=Math.round(BASE_EXPENSES[C.wt]*4);
+        C.savings-=amt;
+        log(yr,`Your child ${p.name} fell on hard times and you helped them with ${fmt(amt)}.`,"bad");
+        C.happy=clamp(C.happy-2,0,100);
+      }
+    }
+    const a=p.age;
+    if(p._protected){ p._protected=false; }
+    else {
+    let dp = a<5?(C.wt===1?0.04:0.01):a<20?0.004:a<50?0.007:a<65?0.025:a<75?0.07:a<85?0.12:0.18;
+    if(p.health<20) dp*=3.5; else if(p.health<35) dp*=2;
+    if(C.wt===1) dp*=1.2;
+    if(Math.random()<dp){
+      p.alive=false;
+      p.inHousehold=false;
+      const deathPool=a<15?DEATH_CAUSES.young:a<55?DEATH_CAUSES.mid:DEATH_CAUSES.old;
+      const cause=pick(deathPool);
+      log(yr,`Your ${p.relation} ${p.name} passed away at age ${p.age} from ${cause}.`,"death");
+      C.happy=clamp(C.happy-8,0,100);
+    }
+    }
+  }
+}
+
+function relationLabel(p){
+  return p.relation.charAt(0).toUpperCase()+p.relation.slice(1);
+}
+
+function householdExpenses(){
+  // Base + per additional adult/child
+  const base=BASE_EXPENSES[C.wt];
+  const members=FM.filter(p=>p.alive&&p.inHousehold);
+  let extra=0;
+  for(const p of members){
+    extra += p.age<18 ? base*0.15 : base*0.25;
+  }
+  return Math.round(base+extra);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SEND MONEY TO FAMILY
+// ═══════════════════════════════════════════════════════════════════
+let selectedSendTarget = null;
+let selectedSendAmount = 0;
+
+function openSendMoneyDialog(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.savings<=0){ showInfo("No Savings","You have no savings to send."); return; }
+
+  const eligible = FM.filter(p=>p.alive && (
+    !p.inHousehold ||
+    ["mother","father","sibling"].includes(p.relation)
+  ));
+
+  const lb = document.getElementById("sendMoneyListbox");
+  lb.innerHTML=""; selectedSendTarget=null; selectedSendAmount=0;
+  document.getElementById("sendMoneyDesc").textContent="";
+
+  if(!eligible.length){
+    lb.innerHTML=`<div style="padding:6px;color:#888;font-style:italic">No family members to send money to.</div>`;
+  } else {
+    eligible.forEach(p=>{
+      const d=document.createElement("div"); d.className="lb-item";
+      const status=p.inHousehold?"In household":"Away";
+      d.textContent=`${p.name} (${p.relation}, age ${p.age}) — ${status}`;
+      d.onclick=()=>{
+        document.querySelectorAll("#sendMoneyListbox .lb-item").forEach(el=>el.classList.remove("selected"));
+        d.classList.add("selected"); selectedSendTarget=p;
+        updateSendAmounts();
+      };
+      lb.appendChild(d);
+    });
+  }
+
+  // Amount buttons
+  updateSendAmounts();
+  document.getElementById("sendMoneyOverlay").classList.add("active");
+}
+
+function updateSendAmounts(){
+  const amounts=[1,2,4,8].map(m=>Math.round(BASE_EXPENSES[C.wt]*m)).filter(a=>a<=C.savings);
+  const container=document.getElementById("sendMoneyAmounts");
+  container.innerHTML="";
+  amounts.forEach(amt=>{
+    const b=document.createElement("button"); b.className="btn";
+    b.textContent=fmt(amt);
+    b.onclick=()=>{
+      container.querySelectorAll(".btn").forEach(el=>el.style.borderColor="");
+      b.style.borderColor="#000080";
+      selectedSendAmount=amt;
+      document.getElementById("sendMoneyDesc").textContent=
+        selectedSendTarget
+          ? `Send ${fmt(amt)} to ${selectedSendTarget.name}. Their health and wellbeing will improve.`
+          : "Select a family member first.";
+    };
+    container.appendChild(b);
+  });
+  if(!amounts.length) container.innerHTML=`<span style="font-size:10px;color:#888">Not enough savings.</span>`;
+}
+
+function confirmSendMoney(){
+  if(!selectedSendTarget||!selectedSendAmount){ closeDialog("sendMoneyOverlay"); return; }
+  const yr=C.birthYear+C.age;
+  C.savings-=selectedSendAmount;
+  selectedSendTarget.health=clamp(selectedSendTarget.health+8,1,100);
+  // If in need, prevents death event this year
+  selectedSendTarget._protected=true;
+  C.happy=clamp(C.happy+4,0,100);
+  log(yr,`You sent ${fmt(selectedSendAmount)} to your ${selectedSendTarget.relation} ${selectedSendTarget.name}.`,"family");
+  closeDialog("sendMoneyOverlay");
+  selectedSendTarget=null; selectedSendAmount=0;
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// START A BUSINESS
+// ═══════════════════════════════════════════════════════════════════
+const BIZ_NAMES = {
+  1:["Small Farm","Street Stall","Village Shop","Repair Workshop","Roadside Café"],
+  2:["General Store","Transport Company","Tailoring Shop","Construction Firm","Food Stall"],
+  3:["Consulting Firm","Tech Startup","Restaurant","Import/Export Business","Property Rental"],
+};
+let selectedBizInvestment = 0;
+
+function openStartBizDialog(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.age<18){ showInfo("Too Young","You must be at least 18 to start a business."); return; }
+  if(C.business){ showInfo("Already Running",`You already own ${C.business.name}. Close it first.`); return; }
+  const minInvest=Math.round(BASE_EXPENSES[C.wt]*20);
+  if(C.savings<minInvest){ showInfo("Insufficient Capital",`Starting a business requires at least ${fmt(minInvest)} in savings.`); return; }
+
+  document.getElementById("startBizInfo").innerHTML=
+    `Starting a business requires capital investment. Higher investment means higher potential profits — but also higher risk.<br><br>`+
+    `Your savings: <b>${fmt(C.savings)}</b> &nbsp; Minimum required: <b>${fmt(minInvest)}</b>`;
+
+  const options=[0.25,0.50,0.75].map(pct=>({pct,amt:Math.round(C.savings*pct)})).filter(o=>o.amt>=minInvest);
+  const container=document.getElementById("startBizAmounts");
+  container.innerHTML=""; selectedBizInvestment=0;
+
+  options.forEach(({pct,amt})=>{
+    const b=document.createElement("button"); b.className="btn";
+    b.textContent=`${Math.round(pct*100)}% — ${fmt(amt)}`;
+    b.onclick=()=>{
+      container.querySelectorAll(".btn").forEach(el=>el.style.borderColor="");
+      b.style.borderColor="#000080";
+      selectedBizInvestment=amt;
+      const estProfit=Math.round(amt*(0.008+Math.random()*0.004));
+      document.getElementById("startBizDesc").textContent=
+        `Invest ${fmt(amt)}. Estimated monthly profit: ${fmt(estProfit)} (varies with market conditions).`;
+    };
+    container.appendChild(b);
+  });
+
+  document.getElementById("startBizOverlay").classList.add("active");
+}
+
+function confirmStartBiz(){
+  if(!selectedBizInvestment){ closeDialog("startBizOverlay"); return; }
+  const yr=C.birthYear+C.age;
+  C.savings-=selectedBizInvestment;
+  const monthlyProfit=Math.round(selectedBizInvestment*(0.007+C.intel/10000+Math.random()*0.005));
+  const name=pick(BIZ_NAMES[C.wt]);
+  C.business={ name, invested:selectedBizInvestment, value:selectedBizInvestment, monthlyProfit, yearsRunning:0 };
+  log(yr,`You invested ${fmt(selectedBizInvestment)} to start ${name}. Estimated monthly profit: ${fmt(monthlyProfit)}.`,"career");
+  C.happy=clamp(C.happy+5,0,100);
+  closeDialog("startBizOverlay");
+  selectedBizInvestment=0;
+  updateUI();
+}
+
+function expandBusiness(){
+  closeAllMenus();
+  if(!C||!C.business){ showInfo("No Business","You do not currently own a business."); return; }
+  const cost=Math.round(C.business.value*0.5);
+  if(C.savings<cost){ showInfo("Cannot Afford",`Expanding requires ${fmt(cost)}.`); return; }
+  const yr=C.birthYear+C.age;
+  C.savings-=cost;
+  C.business.value+=cost;
+  C.business.invested+=cost;
+  const profitBump=Math.round(cost*0.008);
+  C.business.monthlyProfit+=profitBump;
+  log(yr,`You invested ${fmt(cost)} to expand ${C.business.name}. Monthly profit increased by ${fmt(profitBump)}.`,"career");
+  C.happy=clamp(C.happy+3,0,100);
+  updateUI();
+}
+
+function closeBusiness(){
+  closeAllMenus();
+  if(!C||!C.business){ showInfo("No Business","You do not currently own a business."); return; }
+  const yr=C.birthYear+C.age;
+  const payout=Math.round(C.business.value*0.6);
+  log(yr,`You closed ${C.business.name} after ${C.business.yearsRunning} year${C.business.yearsRunning!==1?"s":""}. You recovered ${fmt(payout)}.`,"neutral");
+  C.savings+=payout;
+  C.happy=clamp(C.happy-2,0,100);
+  C.business=null;
+  updateUI();
+}
+
+
+let selectedCity = null;
+let selectedDestCountry = null;
+
+function openMoveDialog(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.age<16){ showInfo("Too Young","You must be at least 16 to move independently."); return; }
+  const cost = Math.round(BASE_EXPENSES[C.wt]*2);
+  if(C.savings<cost){ showInfo("Cannot Afford",`Moving costs ${fmt(cost)} and you do not have enough savings.`); return; }
+
+  const cities = getCities(C.country).filter(([name])=>name!==C.city);
+  const lb = document.getElementById("moveListbox");
+  lb.innerHTML=""; selectedCity=null;
+  document.getElementById("moveDesc").textContent=`Moving costs ${fmt(cost)}.`;
+
+  cities.forEach(([name,tier])=>{
+    const d=document.createElement("div"); d.className="lb-item";
+    const tierLabel=tier===3?"Capital":tier===2?"Urban":"Rural";
+    d.textContent=`${name.padEnd(28)}  [${tierLabel}]`;
+    d.onclick=()=>{
+      document.querySelectorAll("#moveListbox .lb-item").forEach(el=>el.classList.remove("selected"));
+      d.classList.add("selected"); selectedCity=[name,tier];
+      const hMod=cityHealthMod(tier);
+      const iMod=Math.round((cityIncomeMod(tier)-1)*100);
+      document.getElementById("moveDesc").textContent=
+        `${name} — ${tierLabel}. Health access: ${hMod>0?"+"+hMod:hMod}. Income modifier: ${iMod>0?"+"+iMod:iMod}%. Cost: ${fmt(cost)}.`;
+    };
+    lb.appendChild(d);
+  });
+
+  if(!cities.length) lb.innerHTML=`<div style="padding:6px;color:#888;font-style:italic">No other cities available.</div>`;
+  document.getElementById("moveOverlay").classList.add("active");
+}
+
+function confirmMove(){
+  if(!selectedCity){ closeDialog("moveOverlay"); return; }
+  const cost=Math.round(BASE_EXPENSES[C.wt]*2);
+  const [name,tier]=selectedCity;
+  const yr=C.birthYear+C.age;
+  C.savings-=cost;
+  C.city=name;
+  C.happy=clamp(C.happy-3,0,100); // adjustment period
+  C.health=clamp(C.health+cityHealthMod(tier),1,100);
+  log(yr,`You moved to ${name}. Cost: ${fmt(cost)}. The adjustment took some time.`,"neutral");
+  closeDialog("moveOverlay");
+  selectedCity=null;
+  updateUI();
+}
+
+// Emigration destinations by wealth tier
+function getEmigrateDestinations(){
+  const all=COUNTRIES.filter(c=>c[0]!==C.country);
+  if(C.wt===1){
+    // Poor: can reach neighboring/common migration destinations
+    const regions={
+      "East Africa":["Tanzania","Kenya","Uganda","Ethiopia","DR Congo","Sudan"],
+      "West Africa":["Nigeria","Ghana","Ivory Coast","Senegal"],
+      "South Asia":["India","Pakistan","Bangladesh","Nepal"],
+      "Southeast Asia":["Indonesia","Philippines","Thailand","Vietnam","Myanmar","Cambodia"],
+      "Central America":["Mexico","Guatemala","Honduras"],
+      "Caribbean":["Haiti","Dominican Republic","Cuba"],
+      "North Africa":["Egypt","Libya","Morocco","Tunisia"],
+      "East Africa":["Tanzania","Kenya","Uganda"],
+      "Central Africa":["DR Congo","Cameroon","Angola"],
+    };
+    const reachable=new Set([...(regions[C.region]||[]),"Germany","United Kingdom","United States","France","Canada","Australia"]);
+    return all.filter(c=>reachable.has(c[0])).slice(0,20);
+  }
+  if(C.wt===2) return all.filter(c=>c[2]>=1).slice(0,35);
+  return all; // rich can go anywhere
+}
+
+function openEmigrateDialog(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.age<16||C.age>55){ showInfo("Not Possible","Emigration is only possible between ages 16 and 55."); return; }
+  const cost=Math.round(BASE_EXPENSES[C.wt]*8);
+  document.getElementById("emigrateWarning").textContent=
+    `Warning: emigrating costs ${fmt(cost)} and family members who do not come with you will be listed as Away.`;
+
+  const dests=getEmigrateDestinations();
+  const lb=document.getElementById("emigrateListbox");
+  lb.innerHTML=""; selectedDestCountry=null;
+  document.getElementById("emigrateDesc").textContent="";
+
+  dests.forEach(cd=>{
+    const [country,region,wt]=cd;
+    const d=document.createElement("div"); d.className="lb-item";
+    d.textContent=`${country.padEnd(28)}  ${WEALTH_NAMES[wt]}`;
+    d.onclick=()=>{
+      document.querySelectorAll("#emigrateListbox .lb-item").forEach(el=>el.classList.remove("selected"));
+      d.classList.add("selected"); selectedDestCountry=cd;
+      document.getElementById("emigrateDesc").textContent=
+        `${country} (${region}) — Wealth tier: ${WEALTH_NAMES[wt]}. Cost to emigrate: ${fmt(cost)}.`;
+    };
+    lb.appendChild(d);
+  });
+
+  if(!dests.length) lb.innerHTML=`<div style="padding:6px;color:#888;font-style:italic">No accessible destinations.</div>`;
+  document.getElementById("emigrateOverlay").classList.add("active");
+}
+
+function confirmEmigrate(){
+  if(!selectedDestCountry){ closeDialog("emigrateOverlay"); return; }
+  const cost=Math.round(BASE_EXPENSES[C.wt]*8);
+  if(C.savings<cost){ showInfo("Cannot Afford",`Emigrating costs ${fmt(cost)} and you do not have enough savings.`); closeDialog("emigrateOverlay"); return; }
+
+  const [country,region,wt]=selectedDestCountry;
+  const yr=C.birthYear+C.age;
+  const oldCountry=C.country;
+
+  C.savings-=cost;
+  C.country=country;
+  C.region=region;
+  // Slight wealth bump if moving to richer country, else keep
+  if(wt>C.wt) C.wt=Math.min(C.wt+1, wt);
+  C.emigrated=true;
+
+  // Set city to capital of new country
+  const newCities=getCities(country);
+  const capital=newCities.find(([,t])=>t===3)||newCities[0];
+  C.city=capital[0];
+  C.happy=clamp(C.happy-6,0,100); // displacement
+  C.health=clamp(C.health+cityHealthMod(capital[1]),1,100);
+
+  // Family members not spouse/child stay behind
+  for(const p of FM){
+    if(p.alive&&p.inHousehold&&p.relation!=="spouse"&&p.relation!=="child"){
+      p.inHousehold=false;
+      log(yr,`${relationLabel(p)} ${p.name} stayed behind in ${oldCountry}.`,"family");
+    }
+  }
+
+  log(yr,`You emigrated from ${oldCountry} to ${country}. The journey cost ${fmt(cost)} and was deeply disorienting. You settled in ${C.city}.`,"family");
+  C.happy=clamp(C.happy-2,0,100);
+  closeDialog("emigrateOverlay");
+  selectedDestCountry=null;
+  soundBad(); // displacement is hard
+  updateUI();
+}
+
+function actionReturnHome(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(!C.emigrated||C.country===C.birthCountry){
+    showInfo("Already Home","You have not emigrated, or you are already in your birth country."); return;
+  }
+  const cost=Math.round(BASE_EXPENSES[C.wt]*5);
+  if(C.savings<cost){ showInfo("Cannot Afford",`Returning home costs ${fmt(cost)} and you do not have enough savings.`); return; }
+
+  const yr=C.birthYear+C.age;
+  const oldCountry=C.country;
+  // Find birth country data
+  const cd=COUNTRIES.find(c=>c[0]===C.birthCountry)||COUNTRIES[0];
+  C.country=cd[0]; C.region=cd[1];
+  C.savings-=cost;
+
+  // Return to birth city
+  C.city=C.birthCity||getCities(C.country)[0][0];
+  C.happy=clamp(C.happy+5,0,100); // some relief in returning
+
+  // Household family members (those who stayed) can rejoin
+  for(const p of FM){
+    if(p.alive&&!p.inHousehold&&["mother","father","sibling"].includes(p.relation)){
+      if(Math.random()<0.5){
+        p.inHousehold=true;
+        log(yr,`${relationLabel(p)} ${p.name} rejoined your household.`,"family");
+      }
+    }
+  }
+
+  log(yr,`You returned to ${C.country} from ${oldCountry}. Cost: ${fmt(cost)}. Some things had changed. Some had not.`,"family");
+  updateUI();
+}
+
+function updateResidenceMenu(){
+  if(!C) return;
+  function si(id,dis){ const el=document.getElementById(id); if(el) el.classList.toggle("dd-disabled",dis); }
+  si("si_move",       C.age<16);
+  si("si_emigrate",   C.age<16||C.age>55);
+  si("si_returnhome", !C.emigrated||C.country===C.birthCountry);
+}
+
+
+function actionMarry(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.age<16){ showInfo("Too Young","You are too young to get married."); return; }
+  if(FM.find(p=>p.relation==="spouse"&&p.alive)){
+    showInfo("Already Married","You are already married."); return;
+  }
+  const spouseGender=C.gender==="Male"?"Female":"Male";
+  const ageDiff=Math.floor(Math.random()*10)-4; // -4 to +5
+  const spouseAge=Math.max(16,C.age+ageDiff);
+  const spouseEdu=randEdu(C.wt);
+  const spouse=makePerson("spouse",randName(C.region,spouseGender),spouseGender,spouseAge,C.wt,C.region,spouseEdu);
+  FM.push(spouse);
+  const yr=C.birthYear+C.age;
+  log(yr,`You married ${spouse.name}, age ${spouse.age}.`,"family");
+  C.happy=clamp(C.happy+8,0,100);
+  updateUI();
+}
+
+function actionHaveChild(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.age<16){ showInfo("Too Young","You are too young to have a child."); return; }
+  const yr=C.birthYear+C.age;
+  const childGender=Math.random()<0.5?"Male":"Female";
+  const child=makePerson("child",randName(C.region,childGender),childGender,0,C.wt,C.region,"none");
+  child.job=null;
+  FM.push(child);
+  log(yr,`Your child ${child.name} was born.`,"family");
+  C.happy=clamp(C.happy+6,0,100);
+  updateUI();
+}
+
+function actionDivorce(){
+  closeAllMenus();
+  if(!C||dead) return;
+  const spouse=FM.find(p=>p.relation==="spouse"&&p.alive);
+  if(!spouse){ showInfo("Not Married","You are not currently married."); return; }
+  const yr=C.birthYear+C.age;
+  spouse.relation="ex-spouse";
+  spouse.inHousehold=false;
+  log(yr,`You and ${spouse.name} divorced.`,"bad");
+  C.happy=clamp(C.happy-10,0,100);
+  updateUI();
+}
+
+function actionSpouseStudy(){
+  closeAllMenus();
+  if(!C||dead) return;
+  const spouse=FM.find(p=>p.relation==="spouse"&&p.alive);
+  if(!spouse){ showInfo("Not Married","You are not currently married."); return; }
+  if(spouse.inSchool){ showInfo("Already Studying",`${spouse.name} is already enrolled in school.`); return; }
+  // Determine next education level for spouse
+  const eduOrder=["none","primary","secondary","trade","university"];
+  const curIdx=eduOrder.indexOf(spouse.edu||"none");
+  if(curIdx>=4){ showInfo("Fully Educated",`${spouse.name} has already completed university.`); return; }
+  const nextEdu=eduOrder[curIdx+1];
+  const years=SCHOOL_YEARS[nextEdu]||2;
+  spouse.inSchool=true;
+  spouse.schoolType=nextEdu;
+  spouse.schoolEndAge=spouse.age+years;
+  spouse.job=null; // leaves work to study
+  const yr=C.birthYear+C.age;
+  log(yr,`${spouse.name} enrolled in ${EDU_LABELS[nextEdu]}. They left work to study. Expected graduation at age ${spouse.schoolEndAge}.`,"school");
+  C.happy=clamp(C.happy+3,0,100);
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CORE GAME
+// ═══════════════════════════════════════════════════════════════════
+function newLife(){
+  dead=false;
+  FM=[];
+  firedDecisions.clear();
+  pendingDecision=null;
+  closeAllMenus();
+  closeDialog('deathOverlay');
+  document.getElementById("introOverlay").classList.add("hidden");
+
+  const cd=wRand(COUNTRIES.map(c=>[c,c[3]]));
+  const [country,region,wt]=cd;
+  const gender=Math.random()<0.51?"Male":"Female";
+  const pool=NAMES[region]||NAMES["North America"];
+  const name=pick(gender==="Male"?pool.m:pool.f);
+  const birthYear=1960+rng(30);
+  const baseH=wt===1?50+rng(25):wt===2?62+rng(22):74+rng(18);
+
+  C={
+    name,country,region,wt,gender,birthYear,age:0,
+    // Physical
+    health:   baseH,
+    resistance: 30+rng(40),
+    strength:   25+rng(45),
+    endurance:  25+rng(45),
+    athletic:   20+rng(50),
+    appearance: 20+rng(60),
+    // Mental
+    intel:    18+rng(42),
+    wisdom:   10+rng(20),   // grows with age and good decisions
+    artistic: 15+rng(40),
+    musical:  15+rng(40),
+    // Social
+    happy:    35+rng(35),
+    conscience: 30+rng(50),
+    education:"none",inSchool:false,schoolType:null,schoolEndAge:null,
+    job:null,overtime:false,
+    savings:wt===1?80:wt===2?1800:14000,
+    peakSavings:wt===1?80:wt===2?1800:14000,
+    choiceLog:[],
+    conditions:[],
+    leisureThisYear:false,
+    raiseThisYear:false,
+    overtimeChangedThisYear:false,
+    yearsAboveUpgrade:0,
+    yearsBelowDowngrade:0,
+    business: null,  // {name, invested, value, monthlyProfit, yearsRunning}
+  };
+  const startCity = randCity(country)[0];
+  C.city = startCity;
+  C.birthCity = startCity;
+  C.emigrated = false;
+  C.birthCountry = country;
+
+  generateFamily();
+
+  document.getElementById("eventLog").innerHTML="";
+  log(C.birthYear,`${C.name} was born in ${C.country}.`,"birth");
+  soundBirth();
+  const wDesc=wt===1?"Your family lives in extreme poverty.":wt===2?"Your family gets by, but it is not easy.":"Your family is comfortable.";
+  log(C.birthYear,wDesc,"neutral");
+
+  // Log parents
+  const mom=FM.find(p=>p.relation==="mother");
+  const dad=FM.find(p=>p.relation==="father");
+  if(mom) log(C.birthYear,`Your mother ${mom.name} (${mom.age}) is a ${mom.job?mom.job.t:"homemaker"}.`,"family");
+  if(dad) log(C.birthYear,`Your father ${dad.name} (${dad.age}) is a ${dad.job?dad.job.t:"laborer"}.`,"family");
+  const sibs=FM.filter(p=>p.relation==="sibling");
+  if(sibs.length===1) log(C.birthYear,`You have one sibling: ${sibs[0].name}, age ${sibs[0].age}.`,"family");
+  if(sibs.length>1) log(C.birthYear,`You have ${sibs.length} siblings.`,"family");
+
+  updateUI();
+  setButtons(true);
+  document.getElementById("menuActions").classList.remove("disabled");
+  document.getElementById("menuView").classList.remove("disabled");
+  document.getElementById("statusText").textContent="Character active.";
+}
+
+function bracket(){
+  const a=C.age;
+  if(a<=4) return "infant";
+  if(a<=12) return "child";
+  if(a<=17) return "teen";
+  if(a<=30) return "young";
+  if(a<=50) return "middle";
+  return "old";
+}
+
+function ageAYear(){
+  if(!C||dead) return;
+  if(pendingDecision) return;
+  soundAge();
+  C.age++;
+  const yr=C.birthYear+C.age;
+  C.leisureThisYear = false;
+  C.raiseThisYear = false;
+  C.overtimeChangedThisYear = false;
+  closeAllMenus();
+
+  // Apply persistent condition penalties
+  for(const cond of C.conditions){
+    C.health = clamp(C.health + cond.hPenalty, 1, 100);
+    C.happy  = clamp(C.happy  + cond.hapPenalty, 0, 100);
+  }
+
+  // Graduation
+  if(C.inSchool&&C.age>=C.schoolEndAge){
+    C.education=C.schoolType; C.inSchool=false;
+    log(yr,`You completed your ${EDU_LABELS[C.schoolType]}.`,"school");
+    soundGrad();
+    C.happy=clamp(C.happy+8,0,100); C.intel=clamp(C.intel+6,0,100);
+    C.schoolType=null; C.schoolEndAge=null;
+  }
+
+  // Life events
+  const pool=EV[bracket()].filter(e=>!e.cond||e.cond(C));
+  const r=Math.random();
+  const n=r<0.22?0:r<0.78?1:2;
+  const used=new Set();
+  for(let i=0;i<n;i++){
+    const avail=pool.filter((_,idx)=>!used.has(idx));
+    if(!avail.length) break;
+    const idx=rng(avail.length); const ev=avail[idx];
+    used.add(pool.indexOf(ev));
+    // Apply resistance to health damage
+    const hDmg = ev.h < 0 ? Math.round(ev.h * (1 - (C.resistance||0)/200)) : ev.h;
+    C.health=clamp(C.health+hDmg,1,100);
+    C.happy=clamp(C.happy+ev.hap,0,100);
+    C.intel=clamp(C.intel+ev.int,0,100);
+    // Secondary attribute effects from events
+    if(ev.type==="good"){ C.wisdom=clamp((C.wisdom||10)+1,0,100); }
+    if(ev.text&&ev.text.includes("sport")){ C.athletic=clamp((C.athletic||20)+3,0,100); C.endurance=clamp((C.endurance||25)+2,0,100); }
+    if(ev.text&&ev.text.includes("music")){ C.musical=clamp((C.musical||15)+4,0,100); }
+    if(ev.text&&ev.text.includes("book")||ev.text&&ev.text.includes("read")){ C.artistic=clamp((C.artistic||15)+2,0,100); }
+    if(ev.type==="good") soundGood();
+    else if(ev.type==="bad") soundBad();
+    // Attach persistent conditions to certain events
+    if(ev.text.includes("malnourished"))         addCondition("malnutrition");
+    if(ev.text.includes("malaria"))              addCondition("chronic_illness");
+    if(ev.text.includes("stroke"))               addCondition("disability");
+    if(ev.text.includes("heart attack"))         addCondition("heart_disease");
+    if(ev.text.includes("serious illness"))      addCondition("chronic_illness");
+    if(ev.text.includes("workplace accident"))   addCondition("work_injury");
+    if(ev.text.includes("broke your hip"))       addCondition("disability");
+    log(yr,ev.text,ev.type);
+  }
+  if(n===0){
+    C.health=clamp(C.health+(Math.random()<0.5?1:-1),1,100);
+    C.happy=clamp(C.happy+(Math.random()<0.5?1:-1),0,100);
+  }
+
+  // Work events
+  if(C.job&&Math.random()<0.45){
+    const wev=pick(WORK_EVENTS);
+    C.happy=clamp(C.happy+wev.hap,0,100);
+    C.intel=clamp(C.intel+wev.int,0,100);
+    log(yr,wev.text,"career");
+    if(wev.good&&Math.random()<0.25) C.job={...C.job,i:Math.round(C.job.i*1.08)};
+  }
+  if(C.inSchool&&Math.random()<0.5){
+    const sev=pick(SCHOOL_EVENTS);
+    C.happy=clamp(C.happy+sev.hap,0,100); C.intel=clamp(C.intel+sev.int,0,100);
+    log(yr,sev.text,"school");
+  }
+  if(C.overtime){ C.health=clamp(C.health-3,1,100); C.happy=clamp(C.happy-5,0,100); }
+  if(C.age>40) C.health=clamp(C.health-1,1,100);
+  if(C.age>60) C.health=clamp(C.health-2,1,100);
+  if(C.age>72) C.health=clamp(C.health-3,1,100);
+
+  // Physical decay with age
+  if(C.age>35){ C.strength=clamp((C.strength||25)-1,0,100); C.endurance=clamp((C.endurance||25)-1,0,100); }
+  if(C.age>45){ C.athletic=clamp((C.athletic||20)-1,0,100); C.resistance=clamp((C.resistance||30)-1,0,100); }
+  if(C.age>60){ C.appearance=clamp((C.appearance||20)-1,0,100); }
+  // Wisdom grows slowly with age
+  if(C.age>25&&C.age%3===0) C.wisdom=clamp((C.wisdom||10)+1,0,100);
+  // Conscience nudge from leisure volunteering (handled in leisure apply), small annual drift
+  if(Math.random()<0.05) C.conscience=clamp((C.conscience||30)+(Math.random()<0.5?1:-1),0,100);
+
+  // Finances — apply city income modifier
+  const cityTier=(getCities(C.country).find(([n])=>n===C.city)||[null,2])[1];
+  const incMod=cityIncomeMod(cityTier);
+  const income=C.job?Math.round((C.overtime?Math.round(C.job.i*1.22):C.job.i)*incMod):0;
+  const expenses=householdExpenses();
+  C.savings=Math.max(-99999,C.savings+(income-expenses)*12);
+  if(C.savings>C.peakSavings) C.peakSavings=C.savings;
+
+  // Business annual processing
+  if(C.business){
+    C.business.yearsRunning++;
+    // Profit variance: intelligence and wealth tier weighted
+    const baseProfit = C.business.monthlyProfit;
+    const variance = (Math.random()-0.4) * baseProfit * 0.6;
+    const annualProfit = Math.round((baseProfit + variance) * 12);
+    C.savings += annualProfit;
+    if(C.savings>C.peakSavings) C.peakSavings=C.savings;
+    // Business value grows/shrinks with performance
+    C.business.value = Math.max(0, Math.round(C.business.value * (0.95 + Math.random()*0.15)));
+    // Occasional business events
+    if(Math.random()<0.08){
+      const bizEvents=[
+        {t:"Your business attracted a major client.",  profit:0.2, hap:5},
+        {t:"A fire damaged your business premises.",   profit:-0.3,hap:-6},
+        {t:"A competitor undercut your prices.",       profit:-0.15,hap:-3},
+        {t:"Your business received a glowing review.", profit:0.1, hap:4},
+        {t:"A key employee left your business.",       profit:-0.1,hap:-3},
+      ];
+      const ev=pick(bizEvents);
+      C.business.monthlyProfit=Math.max(1,Math.round(C.business.monthlyProfit*(1+ev.profit)));
+      C.happy=clamp(C.happy+ev.hap,0,100);
+      log(yr,ev.t,"career");
+    }
+    // Random closure (market forces)
+    if(Math.random()<0.04){
+      log(yr,`Your business failed after ${C.business.yearsRunning} year${C.business.yearsRunning>1?"s":""}. You recovered ${fmt(Math.round(C.business.value*0.3))} from the closure.`,"bad");
+      C.savings+=Math.round(C.business.value*0.3);
+      C.happy=clamp(C.happy-8,0,100);
+      C.business=null;
+      soundBad();
+    }
+  }
+  if(C.job&&Math.random()<0.04){
+    log(yr,`You lost your job as a ${C.job.t}.`,"bad");
+    C.job=null; C.overtime=false; C.happy=clamp(C.happy-8,0,100);
+  }
+
+  checkWealthMobility(yr);
+
+  // Age family
+  ageFamilyMembers(yr);
+
+  // Spontaneous marriage event (if single and adult) — appearance weighted
+  const marriageChance = 0.04 + ((C.appearance||20)/100)*0.04;
+  if(!FM.find(p=>p.relation==="spouse"&&p.alive)&&C.age>=18&&C.age<=40&&Math.random()<marriageChance){
+    actionMarry();
+  }
+  // Spontaneous child event (if married)
+  const spouse=FM.find(p=>p.relation==="spouse"&&p.alive);
+  if(spouse&&C.age>=18&&C.age<=42){
+    const children=FM.filter(p=>p.relation==="child"&&p.alive);
+    if(children.length<5&&Math.random()<(C.wt===1?0.12:C.wt===2?0.08:0.05)){
+      actionHaveChild();
+    }
+  }
+
+  checkDeath(yr);
+  // Check for a decision event (fires after death check so dead characters don't get decisions)
+  if(!dead) checkDecisions(yr);
+  maybeAutoSave();
+  updateUI();
+}
+
+function age10(){ for(let i=0;i<5&&!dead;i++) ageAYear(); }
+
+function checkDeath(yr){
+  const a=C.age;
+  let p=a<5?(C.wt===1?0.05:0.012):a<15?0.005:a<40?0.008:a<55?0.016:a<65?0.04:a<75?0.08:a<85?0.13:0.20;
+  if(C.health<20) p*=3.5; else if(C.health<40) p*=1.8;
+  if(C.wt===1) p*=1.3;
+  if(Math.random()<p||C.health<=0||C.age>=100) die(yr);
+}
+
+function die(yr){
+  dead=true;
+  const a=C.age;
+  const pool=a<10?DEATH_CAUSES.young:a<50?DEATH_CAUSES.mid:DEATH_CAUSES.old;
+  const cause=pick(pool);
+  log(yr,`${C.name} died at age ${C.age} from ${cause}.`,"death");
+  soundDeath();
+  setButtons(false);
+  document.getElementById("menuActions").classList.add("disabled");
+  document.getElementById("statusText").textContent="Character deceased.";
+
+  const spouse=FM.find(p=>p.relation==="spouse"&&p.alive);
+  const children=FM.filter(p=>p.relation==="child"&&p.alive);
+  const totalChildren=FM.filter(p=>p.relation==="child").length;
+  const outlived=FM.filter(p=>!p.alive).length;
+  const sym=getCurrency();
+
+  // Obituary paragraph
+  const eduDesc = C.education==="none"?"received no formal education":`completed ${EDU_LABELS[C.education].toLowerCase()}`;
+  const jobDesc = C.job?`worked as a ${C.job.t}`:"was unemployed at the time of death";
+  const famDesc = spouse?`They were married to ${spouse.name}.`:(FM.find(p=>p.relation==="ex-spouse")?"They had been previously married.":"They never married.");
+  const childDesc = totalChildren===0?"They had no children.":`They had ${totalChildren} child${totalChildren>1?"ren":""}.`;
+  const wealthDesc = C.savings>0?`left behind ${fmt(C.peakSavings)} at their peak`:`struggled financially throughout their life`;
+  const obit = `${C.name} was born in ${C.country} in ${C.birthYear} and ${eduDesc}. They ${jobDesc} and ${wealthDesc}. ${famDesc} ${childDesc}`;
+
+  // Rating
+  const ratingText = C.happy>=70?"A life well-lived.":C.happy>=50?"A life of quiet dignity.":C.happy>=30?`A hard life, like many in ${C.country}.`:`A life of suffering. Few are so unfortunate.`;
+  const ratingColor = C.happy>=70?"#006600":C.happy>=50?"#004488":C.happy>=30?"#885500":"#880000";
+
+  // Stats rows
+  const statsRows = [
+    ["Country", `${C.country} (${C.region})`],
+    ["Born in", `${C.birthCity||"—"}, ${C.birthCountry||C.country}`],
+    ["Died in", `${C.city||"—"}, ${C.country}`],
+    ["Born", `${C.birthYear}`],
+    ["Died", `${yr}, age ${C.age}`],
+    ["Cause of death", cause],
+    ["Education", EDU_LABELS[C.education]],
+    ["Profession", C.job?C.job.t:"Unemployed"],
+    ["Final health", `${C.health} / 100`],
+    ["Final happiness", `${C.happy} / 100`],
+    ["Final intelligence", `${C.intel} / 100`],
+    ["Net worth at death", fmt(C.savings)],
+    ["Peak net worth", fmt(C.peakSavings)],
+    ["Spouse", spouse?`${spouse.name}, age ${spouse.age}`:(FM.find(p=>p.relation==="ex-spouse")?"Divorced":"None")],
+    ["Children", `${totalChildren}`],
+    ["Family members outlived", `${outlived}`],
+    ["Conditions", C.conditions.length>0?C.conditions.map(c=>c.name).join(", "):"None"],
+    ["Wealth tier at death", WEALTH_NAMES[C.wt]],
+    ["Business", C.business?`${C.business.name} (${C.business.yearsRunning} yrs)`:"None"],
+    ["Decisions made", `${(C.choiceLog||[]).length}`],
+  ];
+
+  // Decisions log
+  let choicesHtml="";
+  if(C.choiceLog&&C.choiceLog.length>0){
+    choicesHtml=`<div class="death-section">Decisions Made</div><div class="death-choices">`;
+    C.choiceLog.forEach(d=>{
+      choicesHtml+=`<div class="death-choice-item"><span class="dc-title">${d.title}</span> — <span class="dc-chose">Choice ${d.chosen}: ${d.text}</span></div>`;
+    });
+    choicesHtml+=`</div>`;
+  }
+
+  document.getElementById("deathBody").innerHTML=
+    `<div class="death-obit">${obit}</div>`+
+    `<div class="death-section">Life Statistics</div>`+
+    `<table class="death-stats-table">${statsRows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</table>`+
+    choicesHtml+
+    `<div class="death-rating" style="color:${ratingColor}">${ratingText}</div>`;
+
+  setTimeout(()=>document.getElementById("deathOverlay").classList.add("active"),700);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EDUCATION
+// ═══════════════════════════════════════════════════════════════════
+function enrollSchool(type){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.inSchool){ showInfo("Already Enrolled","You are already enrolled in school."); return; }
+  const prereq=SCHOOL_PREREQ[type];
+  const curIdx=EDU_ORDER.indexOf(C.education);
+  if(prereq&&curIdx<EDU_ORDER.indexOf(prereq)){ showInfo("Prerequisite Required",`You must complete ${EDU_LABELS[prereq]} first.`); return; }
+  if(C.age<SCHOOL_MIN_AGE[type]){ showInfo("Too Young",`You must be at least ${SCHOOL_MIN_AGE[type]} years old to enroll.`); return; }
+  if(C.education===type||(type!=="university"&&curIdx>EDU_ORDER.indexOf(type))){ showInfo("Already Completed","You have already completed this level of education."); return; }
+  C.inSchool=true; C.schoolType=type; C.schoolEndAge=C.age+SCHOOL_YEARS[type];
+  log(C.birthYear+C.age,`You enrolled in ${EDU_LABELS[type]}. Expected graduation at age ${C.schoolEndAge}.`,"school");
+  C.happy=clamp(C.happy+3,0,100);
+  updateUI();
+}
+function quitSchool(){
+  closeAllMenus();
+  if(!C||!C.inSchool) return;
+  log(C.birthYear+C.age,`You dropped out of ${EDU_LABELS[C.schoolType]}.`,"bad");
+  C.inSchool=false; C.schoolType=null; C.schoolEndAge=null;
+  C.happy=clamp(C.happy-5,0,100); updateUI();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// JOBS
+// ═══════════════════════════════════════════════════════════════════
+function getAvailableJobs(){
+  if(!C) return [];
+  const tier=JOBS[C.wt]; if(!tier) return [];
+  const maxIdx=EDU_ORDER.indexOf(C.education);
+  let jobs=[];
+  for(let i=0;i<=maxIdx;i++) jobs=jobs.concat((tier[EDU_ORDER[i]]||[]).map(j=>({...j,edu:EDU_ORDER[i]})));
+  return jobs;
+}
+function openJobDialog(){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.age<13){ showInfo("Too Young","You are too young to work."); return; }
+  const jobs=getAvailableJobs();
+  const lb=document.getElementById("jobListbox");
+  lb.innerHTML=""; selectedJob=null;
+  document.getElementById("jobDesc").textContent="";
+  if(!jobs.length){
+    lb.innerHTML=`<div style="padding:6px;color:#888;font-style:italic;">No jobs available.<br>Enroll in school to access more positions.</div>`;
+  } else {
+    jobs.forEach(j=>{
+      const d=document.createElement("div"); d.className="lb-item";
+      d.textContent=`${j.t.padEnd(30,' ')}  ${fmt(j.i)}/mo`;
+      d.onclick=()=>{
+        document.querySelectorAll(".lb-item").forEach(el=>el.classList.remove("selected"));
+        d.classList.add("selected"); selectedJob=j;
+        document.getElementById("jobDesc").textContent=`${j.t} — requires ${EDU_LABELS[j.edu]}. Income: ${fmt(j.i)}/month.`;
+      };
+      lb.appendChild(d);
+    });
+  }
+  document.getElementById("jobOverlay").classList.add("active");
+}
+function confirmJob(){
+  if(!selectedJob){ closeDialog("jobOverlay"); return; }
+  const yr=C.birthYear+C.age;
+  const prev=C.job?`Left ${C.job.t}. `:"";
+  C.job={t:selectedJob.t,i:selectedJob.i}; C.overtime=false;
+  log(yr,`${prev}Began work as a ${C.job.t}.`,"career");
+  C.happy=clamp(C.happy+4,0,100);
+  closeDialog("jobOverlay"); updateUI();
+}
+function quitJob(){
+  closeAllMenus();
+  if(!C||!C.job) return;
+  log(C.birthYear+C.age,`You quit your job as a ${C.job.t}.`,"neutral");
+  C.job=null; C.overtime=false; C.happy=clamp(C.happy-3,0,100); updateUI();
+}
+function askRaise(){
+  closeAllMenus();
+  if(!C||!C.job) return;
+  if(C.raiseThisYear){ showInfo("Already Asked","You have already asked for a raise this year. Try again next year."); return; }
+  C.raiseThisYear = true;
+  const yr=C.birthYear+C.age;
+  const chance=0.2+(C.intel/100)*0.4;
+  if(Math.random()<chance){
+    const bump=Math.round(C.job.i*(0.08+Math.random()*0.12));
+    C.job={...C.job,i:C.job.i+bump};
+    document.getElementById("raiseBody").innerHTML=`Your employer agreed to a raise of <b>${fmt(bump)}/month</b>.<br>New salary: <b>${fmt(C.job.i)}/month</b>.`;
+    log(yr,`Received a raise. New salary: ${fmt(C.job.i)}/month.`,"career");
+    C.happy=clamp(C.happy+6,0,100);
+  } else {
+    document.getElementById("raiseBody").innerHTML=`Your employer denied your request for a raise.<br><br><i>"Perhaps try again in a year or two."</i>`;
+    log(yr,"Denied a raise.","career"); C.happy=clamp(C.happy-3,0,100);
+  }
+  document.getElementById("raiseOverlay").classList.add("active"); updateUI();
+}
+function toggleOvertime(){
+  closeAllMenus();
+  if(!C||!C.job) return;
+  if(C.overtimeChangedThisYear){ showInfo("Already Decided","You have already changed your overtime status this year."); return; }
+  C.overtime=!C.overtime;
+  C.overtimeChangedThisYear = true;
+  log(C.birthYear+C.age,C.overtime?"You began working overtime. Higher pay, but at a cost to your health.":"You stopped working overtime.","career");
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INTRO SCREEN
+// ═══════════════════════════════════════════════════════════════════
+function initIntro(){
+  const save = getSaveData();
+  const infoEl = document.getElementById("introSaveInfo");
+  const contBtn = document.getElementById("introContinueBtn");
+  if(save){
+    const sc = save.C;
+    infoEl.textContent = `Saved game found: ${sc.name}, age ${sc.age}, ${sc.country} (${sc.birthYear + sc.age}).`;
+    contBtn.disabled = false;
+  } else {
+    infoEl.textContent = "No saved game found.";
+    contBtn.disabled = true;
+  }
+}
+
+function introNewLife(){
+  document.getElementById("introOverlay").classList.add("hidden");
+  newLife();
+}
+
+function introContinue(){
+  const ok = loadGame();
+  if(ok) document.getElementById("introOverlay").classList.add("hidden");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SAVE / LOAD
+// ═══════════════════════════════════════════════════════════════════
+const SAVE_KEY = "nlc_save_v1";
+
+function getSaveData(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  } catch(e){ return null; }
+}
+
+function saveGame(){
+  closeAllMenus();
+  if(!C){ showInfo("Nothing to Save","Start a new life first."); return; }
+  try {
+    const payload = {
+      C, FM,
+      firedDecisionsArr: [...firedDecisions],
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+    // Visual feedback in status bar
+    const sb = document.getElementById("sb2");
+    const prev = sb.textContent;
+    sb.textContent = "Game saved ✓";
+    setTimeout(()=>sb.textContent=prev, 2000);
+  } catch(e){
+    showInfo("Save Failed","Could not save to localStorage. This may not be available in all browser contexts.");
+  }
+}
+
+function loadGame(){
+  closeAllMenus();
+  const save = getSaveData();
+  if(!save){ showInfo("No Save Found","No saved game was found."); return false; }
+  try {
+    C = save.C;
+    FM = save.FM || [];
+    firedDecisions.clear();
+    (save.firedDecisionsArr||[]).forEach(id => firedDecisions.add(id));
+    pendingDecision = null;
+    dead = false;
+
+    // Restore FM conditions arrays if missing (backwards compat)
+    FM.forEach(p=>{ if(!p.conditions) p.conditions=[]; });
+
+    // Rebuild UI
+    document.getElementById("eventLog").innerHTML = "";
+    log(C.birthYear+C.age, `Game loaded. ${C.name}, age ${C.age}, ${C.country}.`, "neutral");
+
+    updateUI();
+    setButtons(true);
+    document.getElementById("menuActions").classList.remove("disabled");
+    document.getElementById("menuView").classList.remove("disabled");
+    document.getElementById("statusText").textContent = "Game loaded.";
+
+    if(dead){
+      setButtons(false);
+      document.getElementById("menuActions").classList.add("disabled");
+    }
+    return true;
+  } catch(e){
+    showInfo("Load Failed", "The saved game could not be loaded. It may be from an older version.");
+    return false;
+  }
+}
+
+// Auto-save every 5 years
+let _yearsSinceAutoSave = 0;
+function maybeAutoSave(){
+  if(!C||dead) return;
+  _yearsSinceAutoSave++;
+  if(_yearsSinceAutoSave>=5){
+    _yearsSinceAutoSave=0;
+    try {
+      const payload = { C, FM, firedDecisionsArr:[...firedDecisions], timestamp:Date.now() };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+    } catch(e){}
+  }
+}
+
+
+// Upgrade/downgrade thresholds (annual net worth needed, by country tier)
+const UPGRADE_THRESHOLD   = {1:2000,  2:40000};   // savings needed for 3 consecutive years
+const DOWNGRADE_THRESHOLD = {2:-5000, 3:-20000};   // savings below this for 2 years = downgrade
+
+function checkWealthMobility(yr){
+  if(!C||dead) return;
+
+  // Check for upgrade
+  if(C.wt<3){
+    const threshold=UPGRADE_THRESHOLD[C.wt];
+    if(threshold&&C.savings>=threshold){
+      C.yearsAboveUpgrade++;
+      if(C.yearsAboveUpgrade>=3){
+        C.wt++;
+        C.yearsAboveUpgrade=0;
+        C.yearsBelowDowngrade=0;
+        const labels=["","into the working class","into a comfortable life"];
+        log(yr,`Your financial situation has improved significantly. You have moved ${labels[C.wt]}.`,"good");
+        soundGood();
+        updateUI(); // refresh jobs/expenses immediately
+      }
+    } else {
+      C.yearsAboveUpgrade=0;
+    }
+  }
+
+  // Check for downgrade
+  if(C.wt>1){
+    const threshold=DOWNGRADE_THRESHOLD[C.wt];
+    if(threshold&&C.savings<=threshold){
+      C.yearsBelowDowngrade++;
+      if(C.yearsBelowDowngrade>=2){
+        C.wt--;
+        C.yearsBelowDowngrade=0;
+        C.yearsAboveUpgrade=0;
+        const labels=["","into poverty","into financial hardship"];
+        log(yr,`Sustained debt and hardship have pushed you ${labels[C.wt+1] || "down a tier"}.`,"bad");
+        soundBad();
+        C.happy=clamp(C.happy-6,0,100);
+        updateUI();
+      }
+    } else {
+      C.yearsBelowDowngrade=0;
+    }
+  }
+}
+
+
+let _audioCtx = null;
+function getAudio(){ if(!_audioCtx) _audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return _audioCtx; }
+
+function beep(freq=440, type="square", duration=0.12, vol=0.18){
+  try {
+    const ctx=getAudio();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type=type; osc.frequency.setValueAtTime(freq,ctx.currentTime);
+    gain.gain.setValueAtTime(vol,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+duration);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime+duration);
+  } catch(e){}
+}
+
+function soundGood(){   beep(660,"square",0.08,0.15); setTimeout(()=>beep(880,"square",0.1,0.12),90); }
+function soundBad(){    beep(220,"sawtooth",0.18,0.18); setTimeout(()=>beep(180,"sawtooth",0.14,0.15),120); }
+function soundDeath(){  beep(300,"sawtooth",0.25,0.2); setTimeout(()=>beep(220,"sawtooth",0.2,0.2),200); setTimeout(()=>beep(150,"sawtooth",0.3,0.35),400); }
+function soundBirth(){  beep(523,"sine",0.1,0.15); setTimeout(()=>beep(659,"sine",0.1,0.15),110); setTimeout(()=>beep(784,"sine",0.15,0.15),220); }
+function soundDecision(){ beep(440,"triangle",0.12,0.15); setTimeout(()=>beep(550,"triangle",0.12,0.12),130); }
+function soundGrad(){   beep(523,"square",0.08); setTimeout(()=>beep(659,"square",0.08),90); setTimeout(()=>beep(784,"square",0.08),180); setTimeout(()=>beep(1047,"square",0.18),270); }
+function soundAge(){    beep(330,"square",0.04,0.08); }
+
+
+const LEISURE = {
+  travel:{
+    label:"Travel",
+    cond:(C)=>C.age>=16,
+    cost:(C)=>Math.round(BASE_EXPENSES[C.wt]*4),
+    apply:(C)=>{
+      const cost=Math.round(BASE_EXPENSES[C.wt]*4);
+      if(C.savings<cost) return null; // can't afford
+      C.savings-=cost;
+      C.happy=clamp(C.happy+10,0,100);
+      C.intel=clamp(C.intel+3,0,100);
+      const places={1:["a nearby city","a regional market town","a border crossing"],2:["a neighboring country","a regional capital","a national landmark"],3:["abroad","Europe","Southeast Asia","the Americas"]};
+      const dest=pick(places[C.wt]);
+      return `You spent ${fmt(cost)} traveling to ${dest}. The experience broadened your view of the world.`;
+    }
+  },
+  religion:{
+    label:"Practice Religion",
+    cond:(C)=>C.age>=5,
+    cost:(C)=>0,
+    apply:(C)=>{
+      C.happy=clamp(C.happy+7,0,100);
+      C.health=clamp(C.health+1,1,100);
+      const phrases=["You found comfort in prayer and community this year.","Your faith gave you strength through the difficulties of the year.","You attended services regularly and felt a sense of belonging.","Quiet moments of reflection brought you unexpected peace."];
+      return pick(phrases);
+    }
+  },
+  hobby:{
+    label:"Pursue a Hobby",
+    cond:(C)=>C.age>=8,
+    cost:(C)=>Math.round(BASE_EXPENSES[C.wt]*0.5),
+    apply:(C)=>{
+      const cost=Math.round(BASE_EXPENSES[C.wt]*0.5);
+      C.savings-=cost;
+      C.happy=clamp(C.happy+8,0,100);
+      C.health=clamp(C.health+1,1,100);
+      const hobbies=["gardening","reading","cooking","drawing","woodworking","music","football","chess","fishing","sewing","running","storytelling"];
+      const h=pick(hobbies);
+      // Boost relevant secondary attrs
+      if(["drawing","storytelling","cooking"].includes(h)) C.artistic=clamp((C.artistic||15)+3,0,100);
+      if(h==="music") C.musical=clamp((C.musical||15)+4,0,100);
+      if(["football","running","fishing"].includes(h)){ C.athletic=clamp((C.athletic||20)+2,0,100); C.endurance=clamp((C.endurance||25)+1,0,100); }
+      if(h==="woodworking") C.strength=clamp((C.strength||25)+2,0,100);
+      return `You devoted time to ${h} this year. A small but reliable source of joy.`;
+    }
+  },
+  volunteer:{
+    label:"Volunteer",
+    cond:(C)=>C.age>=14,
+    cost:(C)=>0,
+    apply:(C)=>{
+      C.happy=clamp(C.happy+6,0,100);
+      C.intel=clamp(C.intel+2,0,100);
+      C.conscience=clamp((C.conscience||30)+3,0,100);
+      C.wisdom=clamp((C.wisdom||10)+1,0,100);
+      const acts=["helped at a local clinic","taught children in your community","assisted with disaster relief","worked at a food distribution center","helped build a community structure"];
+      return `You ${pick(acts)} this year. It cost you nothing and gave you more than you expected.`;
+    }
+  },
+};
+
+function actionLeisure(type){
+  closeAllMenus();
+  if(!C||dead) return;
+  if(C.leisureThisYear){ showInfo("Already Rested","You have already taken a leisure activity this year. Age another year first."); return; }
+  const l=LEISURE[type];
+  if(!l||!l.cond(C)){ showInfo("Not Available","You cannot do this right now."); return; }
+  const cost=l.cost(C);
+  if(cost>0&&C.savings<cost){ showInfo("Cannot Afford",`This activity costs ${fmt(cost)} and you do not have enough savings.`); return; }
+  const result=l.apply(C);
+  if(!result){ showInfo("Cannot Afford",`This activity costs ${fmt(cost)} and you do not have enough savings.`); return; }
+  C.leisureThisYear=true;
+  log(C.birthYear+C.age, result, "good");
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PERSISTENT CONDITIONS
+// ═══════════════════════════════════════════════════════════════════
+const CONDITION_DEFS = {
+  chronic_illness:  {name:"Chronic Illness",   hPenalty:-3, hapPenalty:-2},
+  work_injury:      {name:"Work Injury",        hPenalty:-2, hapPenalty:-1},
+  malnutrition:     {name:"Malnutrition",       hPenalty:-3, hapPenalty:-2},
+  depression:       {name:"Depression",         hPenalty:-1, hapPenalty:-4},
+  addiction:        {name:"Addiction",          hPenalty:-2, hapPenalty:-3},
+  disability:       {name:"Disability",         hPenalty:-2, hapPenalty:-2},
+  heart_disease:    {name:"Heart Disease",      hPenalty:-4, hapPenalty:-2},
+};
+
+function addCondition(id){
+  if(!C) return;
+  if(C.conditions.find(c=>c.id===id)) return; // already has it
+  const def=CONDITION_DEFS[id];
+  if(!def) return;
+  C.conditions.push({id,...def});
+}
+
+function removeCondition(id){
+  if(!C) return;
+  C.conditions=C.conditions.filter(c=>c.id!==id);
+}
+
+
+function openCharSummary(){
+  closeAllMenus();
+  if(!C) return;
+  const yr = C.birthYear + C.age;
+  const spouse = FM.find(p=>p.relation==="spouse"&&p.alive);
+  const children = FM.filter(p=>p.relation==="child"&&p.alive);
+  const income = C.job?(C.overtime?Math.round(C.job.i*1.22):C.job.i):0;
+  const rows = [
+    ["Full Name", C.name],
+    ["Age", C.age],
+    ["Year", yr],
+    ["Country", `${C.country} (${C.region})`],
+    ["City", C.city||"—"],
+    ["Gender", C.gender],
+    ["Wealth Tier", WEALTH_NAMES[C.wt]],
+    ["Education", EDU_LABELS[C.education] + (C.inSchool ? ` → studying ${EDU_LABELS[C.schoolType]}` : "")],
+    ["Profession", C.job ? C.job.t + (C.overtime?" (Overtime)":"") : "Unemployed"],
+    ["Monthly Income", fmt(income)],
+    ["Net Worth", fmt(C.savings)],
+    ["Spouse", spouse ? `${spouse.name}, age ${spouse.age}` : "None"],
+    ["Children", children.length > 0 ? children.map(ch=>`${ch.name} (${ch.age})`).join(", ") : "None"],
+    ["Health", C.health + " / 100"],
+    ["Resistance", (C.resistance||0) + " / 100"],
+    ["Strength", (C.strength||0) + " / 100"],
+    ["Endurance", (C.endurance||0) + " / 100"],
+    ["Athletic", (C.athletic||0) + " / 100"],
+    ["Appearance", (C.appearance||0) + " / 100"],
+    ["Intelligence", C.intel + " / 100"],
+    ["Wisdom", (C.wisdom||0) + " / 100"],
+    ["Artistic", (C.artistic||0) + " / 100"],
+    ["Musical", (C.musical||0) + " / 100"],
+    ["Happiness", C.happy + " / 100"],
+    ["Conscience", (C.conscience||0) + " / 100"],
+    ["Conditions", C.conditions.length>0 ? C.conditions.map(c=>c.name).join(", ") : "None"],
+  ];
+  let html = `<div class="sum-section">Profile</div>
+  <table class="sum-table">`;
+  rows.forEach(([k,v])=>{
+    html+=`<tr><td style="color:#555;width:44%">${k}</td><td><b>${v}</b></td></tr>`;
+  });
+  html+=`</table>`;
+  document.getElementById("summaryBody").innerHTML = html;
+  document.getElementById("summaryOverlay").classList.add("active");
+}
+
+function openFamilyHistory(){
+  closeAllMenus();
+  if(!C) return;
+  const living = FM.filter(p=>p.alive);
+  const deceased = FM.filter(p=>!p.alive);
+
+  function personRow(p, cls){
+    const job = p.job ? p.job.t : (p.age < 16 ? "Child" : "Unemployed");
+    const income = p.job && p.age>=16 ? fmt(p.job.i)+"/mo" : "—";
+    return `<tr class="${cls}">
+      <td>${p.name}</td>
+      <td>${p.relation.charAt(0).toUpperCase()+p.relation.slice(1)}</td>
+      <td class="fin-right">${p.age}</td>
+      <td class="fin-right">${p.alive ? p.health : "—"}</td>
+      <td>${job}</td>
+      <td class="fin-right">${income}</td>
+      <td>${p.inHousehold?"In household":p.alive?"Away":"Deceased"}</td>
+    </tr>`;
+  }
+
+  let html = `<div class="sum-section">Living Family Members (${living.length})</div>
+  <table class="sum-table">
+    <thead><tr><th>Name</th><th>Relation</th><th class="fin-right">Age</th><th class="fin-right">Health</th><th>Profession</th><th class="fin-right">Income</th><th>Status</th></tr></thead>
+    <tbody>`;
+  if(living.length===0) html+=`<tr><td colspan="7" style="color:#888;font-style:italic;text-align:center">No living family members.</td></tr>`;
+  living.forEach(p=>{ html+=personRow(p,"sum-alive"); });
+  html+=`</tbody></table>`;
+
+  if(deceased.length>0){
+    html+=`<div class="sum-section" style="margin-top:4px">Deceased (${deceased.length})</div>
+    <table class="sum-table">
+      <thead><tr><th>Name</th><th>Relation</th><th class="fin-right">Age at Death</th><th class="fin-right">—</th><th colspan="3">—</th></tr></thead>
+      <tbody>`;
+    deceased.forEach(p=>{ html+=personRow(p,"sum-deceased"); });
+    html+=`</tbody></table>`;
+  }
+
+  document.getElementById("familyHistoryBody").innerHTML = html;
+  document.getElementById("familyHistoryOverlay").classList.add("active");
+}
+
+
+function checkDecisions(yr){
+  // Find an eligible unfired decision (shuffle for variety)
+  const pool = DECISIONS.filter(d => !firedDecisions.has(d.id) && d.cond(C, FM));
+  if(!pool.length) return false;
+  // Only fire a decision ~40% of eligible years to avoid spam
+  if(Math.random() > 0.40) return false;
+  const d = pick(pool);
+  firedDecisions.add(d.id);
+  showDecision(d, yr);
+  return true;
+}
+
+function showDecision(d, yr){
+  pendingDecision = {d, yr};
+  document.getElementById("decisionTitle").innerHTML = `<span>⚖ Decision — Age ${C.age}</span>`;
+  document.getElementById("decisionScenario").textContent = d.scenario;
+  document.getElementById("decisionOutcome").className = "decision-outcome";
+  document.getElementById("decisionOutcome").textContent = "";
+  document.getElementById("decisionContinueBtn").style.display = "none";
+
+  const choicesEl = document.getElementById("decisionChoices");
+  choicesEl.innerHTML = "";
+  // Filter: wise options only visible at wisdom > 60
+  const visibleChoices = d.choices.filter(ch => !ch.isWise || (C.wisdom||10) > 60);
+  visibleChoices.forEach(ch => {
+    const btn = document.createElement("button");
+    btn.className = "decision-btn";
+    const wiseBadge = ch.isWise ? `<span style="color:#aa8800;font-size:9px;margin-left:4px">[Wisdom]</span>` : "";
+    const altBadge = ch.isAltruistic && !ch.isWise ? `<span style="color:#006600;font-size:9px;margin-left:4px">✦</span>` : "";
+    btn.innerHTML = `<span class="choice-label">${ch.label}.</span>${ch.text}${wiseBadge}${altBadge}`;
+    btn.onclick = () => applyDecisionChoice(ch, yr);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById("decisionOverlay").classList.add("active");
+  soundDecision();
+}
+
+function applyDecisionChoice(ch, yr){
+  document.querySelectorAll(".decision-btn").forEach(b => b.disabled = true);
+  const result = ch.apply(C, FM);
+  if(C&&C.choiceLog) C.choiceLog.push({title:pendingDecision.d.title, chosen:ch.label, text:ch.text, result});
+  // Conscience effects
+  if(ch.isAltruistic){
+    const bonus=Math.round(((C.conscience||30))/12);
+    C.happy=clamp(C.happy+bonus,0,100);
+    C.conscience=clamp((C.conscience||30)+3,0,100);
+    C.wisdom=clamp((C.wisdom||10)+1,0,100);
+  } else if(ch.isSelfish){
+    const penalty=Math.round(((C.conscience||30))/18);
+    C.happy=clamp(C.happy-penalty,0,100);
+    C.conscience=clamp((C.conscience||30)-2,0,100);
+  }
+  const outEl = document.getElementById("decisionOutcome");
+  outEl.textContent = result;
+  outEl.className = "decision-outcome visible";
+  log(yr, result, "neutral");
+  document.getElementById("decisionContinueBtn").style.display = "inline-block";
+  updateUI();
+}
+
+function resolveDecision(){
+  pendingDecision = null;
+  document.getElementById("decisionOverlay").classList.remove("active");
+}
+
+
+function toggleMenu(id){
+  const el=document.getElementById(id);
+  const isOpen=el.classList.contains("open");
+  closeAllMenus();
+  if(!isOpen&&!el.classList.contains("disabled")) el.classList.add("open");
+}
+function closeAllMenus(){ document.querySelectorAll(".menu-item.open").forEach(el=>el.classList.remove("open")); }
+document.addEventListener("click",e=>{ if(!e.target.closest(".menu-bar")) closeAllMenus(); });
+
+// ═══════════════════════════════════════════════════════════════════
+// DIALOGS
+// ═══════════════════════════════════════════════════════════════════
+function closeDialog(id){ document.getElementById(id).classList.remove("active"); }
+function showInfo(title,body){
+  document.getElementById("infoTitle").innerHTML=`<span>${title}</span><div class="title-btn" onclick="closeDialog('infoOverlay')">✕</div>`;
+  document.getElementById("infoBody").innerHTML=body;
+  document.getElementById("infoOverlay").classList.add("active");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LOG
+// ═══════════════════════════════════════════════════════════════════
+function log(year,text,type){
+  const el=document.getElementById("eventLog");
+  const ph=el.querySelector(".log-placeholder"); if(ph) ph.remove();
+  const d=document.createElement("div"); d.className="evt";
+  d.innerHTML=`<span class="evt-year">${year}</span><span class="evt-${type}"> ${text}</span>`;
+  el.appendChild(d); el.scrollTop=el.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════════════════
+function setButtons(on){
+  document.getElementById("ageBtn").disabled=!on;
+  document.getElementById("age10Btn").disabled=!on;
+}
+
+function updateUI(){
+  if(!C) return;
+  document.getElementById("countryBox").innerHTML=
+    `<span class="country-name">${C.country}</span><span class="country-region">${C.region}</span><span class="country-region" style="font-size:9px;color:#aee">${C.city||""}</span>`;
+  document.getElementById("ciName").textContent=C.name;
+  document.getElementById("ciAge").textContent=C.age;
+  document.getElementById("ciGender").textContent=C.gender;
+  document.getElementById("ciYear").textContent=C.birthYear+C.age;
+  document.getElementById("ciCity").textContent=C.city||"—";
+  document.getElementById("ciWealth").textContent=WEALTH_NAMES[C.wt];
+
+  const eduEl=document.getElementById("crEdu");
+  eduEl.textContent=C.inSchool?`→ ${EDU_LABELS[C.schoolType]} (${C.schoolEndAge-C.age}yr)`:EDU_LABELS[C.education];
+  eduEl.className="cr-value"+(C.education==="none"&&!C.inSchool?" none":"");
+
+  const jobEl=document.getElementById("crJob");
+  jobEl.textContent=C.job?(C.overtime?C.job.t+" ⏱":C.job.t):"Unemployed";
+  jobEl.className="cr-value"+(C.job?"":" none");
+
+  const _cityTier=(getCities(C.country).find(([n])=>n===C.city)||[null,2])[1];
+  const _incMod=cityIncomeMod(_cityTier);
+  const inc=C.job?Math.round((C.overtime?Math.round(C.job.i*1.22):C.job.i)*_incMod):0;
+  const incEl=document.getElementById("crIncome");
+  incEl.textContent=fmt(inc)+"/mo";
+  incEl.className="cr-value"+(C.job?"":" none");
+
+  // Conditions
+  const condRow=document.getElementById("crCondRow");
+  const condEl=document.getElementById("crCond");
+  if(C.conditions.length>0){
+    condRow.style.display="flex";
+    condEl.textContent=C.conditions.map(c=>c.name).join(", ");
+  } else {
+    condRow.style.display="none";
+  }
+
+  renderAttrs();
+
+  buildFinTable();
+  updateSchoolMenu();
+  updateRelMenu();
+  updateLeisureMenu();
+  updateResidenceMenu();
+
+  document.getElementById("sb1").textContent=`${C.name}, Age ${C.age}`;
+  document.getElementById("sb2").textContent=`${C.country} · ${C.gender}`;
+  document.getElementById("finLabel").textContent=`Finances — ${C.name}'s Household`;
+}
+
+function buildFinTable(){
+  const _ct=(getCities(C.country).find(([n])=>n===C.city)||[null,2])[1];
+  const _im=cityIncomeMod(_ct);
+  const income=C.job?Math.round((C.overtime?Math.round(C.job.i*1.22):C.job.i)*_im):0;
+  const expenses=householdExpenses();
+  const nwClass=C.savings>=0?"fin-green":"fin-red";
+  let rows="";
+
+  // Player row
+  rows+=`<tr class="self-row">
+    <td><b>${C.name}</b> <span style="color:#555">(self)</span></td>
+    <td class="fin-right">${C.age}</td>
+    <td class="fin-right">${C.health}</td>
+    <td>${C.job?(C.overtime?C.job.t+" ⏱":C.job.t):"<span class='fin-gray'>Unemployed</span>"}</td>
+    <td class="fin-right fin-green">${fmt(income)}</td>
+    <td class="fin-right"></td>
+    <td class="fin-right ${nwClass}">${fmt(C.savings)}</td>
+  </tr>`;
+
+  // Living household members
+  const members=FM.filter(p=>p.alive&&p.inHousehold);
+  for(const p of members){
+    const pIncome=p.job&&p.age>=16?p.job.i:0;
+    const conds=(p.conditions||[]).map(c=>c.name).join(", ");
+    rows+=`<tr>
+      <td>${p.name} <span style="color:#555">(${p.relation})</span>${conds?`<br><span style="color:#880000;font-size:9px">${conds}</span>`:""}</td>
+      <td class="fin-right">${p.age}</td>
+      <td class="fin-right">${p.health}</td>
+      <td>${pIncome>0?p.job.t:"<span class='fin-gray'>"+(p.age<16?"Child":"Unemployed")+"</span>"}</td>
+      <td class="fin-right fin-green">${pIncome>0?fmt(pIncome):""}</td>
+      <td class="fin-right"></td>
+      <td class="fin-right"></td>
+    </tr>`;
+  }
+
+  // Business row
+  if(C.business){
+    const bProfit=C.business.monthlyProfit;
+    rows+=`<tr>
+      <td><i>${C.business.name}</i> <span style="color:#555">(business)</span></td>
+      <td class="fin-right">—</td>
+      <td class="fin-right">—</td>
+      <td>Owner — Yr ${C.business.yearsRunning}</td>
+      <td class="fin-right fin-green">${fmt(bProfit)}/mo</td>
+      <td class="fin-right"></td>
+      <td class="fin-right"></td>
+    </tr>`;
+  }
+
+  // Total row
+  const totalIncome=income
+    +members.reduce((s,p)=>s+(p.job&&p.age>=16?p.job.i:0),0)
+    +(C.business?C.business.monthlyProfit:0);
+  rows+=`<tr class="total-row">
+    <td colspan="3"><b>Household Total</b></td>
+    <td></td>
+    <td class="fin-right fin-green"><b>${fmt(totalIncome)}</b></td>
+    <td class="fin-right fin-red"><b>${fmt(expenses)}</b></td>
+    <td class="fin-right ${nwClass}"><b>${fmt(C.savings)}</b></td>
+  </tr>`;
+
+  document.getElementById("finBody").innerHTML=rows;
+}
+
+function updateSchoolMenu(){
+  if(!C) return;
+  const curIdx=EDU_ORDER.indexOf(C.education);
+  function si(id,dis){ const el=document.getElementById(id); if(el) el.classList.toggle("dd-disabled",dis); }
+  si("si_primary",   C.inSchool||C.age<6||curIdx>=1);
+  si("si_secondary", C.inSchool||C.age<13||curIdx<1||curIdx>=2);
+  si("si_trade",     C.inSchool||C.age<16||curIdx<1||(C.education==="trade"||C.education==="university"));
+  si("si_university",C.inSchool||C.age<18||curIdx<2);
+  si("si_quitschool",!C.inSchool);
+  si("si_getjob",    C.age<13);
+  si("si_quitjob",   !C.job);
+  si("si_raise",     !C.job || C.raiseThisYear);
+  si("si_overtime",  !C.job || C.overtimeChangedThisYear);
+  si("si_startbiz",  !!C.business || C.age<18 || C.savings<Math.round(BASE_EXPENSES[C.wt]*20));
+  si("si_expandbiz", !C.business);
+  si("si_closebiz",  !C.business);
+  const ot=document.getElementById("si_overtime");
+  if(ot&&C.job) ot.textContent=C.overtime?"Stop Working Overtime":"Work Overtime";
+}
+
+function updateRelMenu(){
+  if(!C) return;
+  const married=!!FM.find(p=>p.relation==="spouse"&&p.alive);
+  const spouse=FM.find(p=>p.relation==="spouse"&&p.alive);
+  const spouseFullyEdu=spouse&&(spouse.edu||"none")==="university";
+  const spouseInSchool=spouse&&spouse.inSchool;
+  function si(id,dis){ const el=document.getElementById(id); if(el) el.classList.toggle("dd-disabled",dis); }
+  si("si_marry",       married||C.age<16);
+  si("si_child",       C.age<16);
+  si("si_divorce",     !married);
+  si("si_spousestudy", !married||spouseFullyEdu||spouseInSchool);
+}
+
+function updateLeisureMenu(){
+  if(!C) return;
+  function si(id,dis){ const el=document.getElementById(id); if(el) el.classList.toggle("dd-disabled",dis); }
+  const done=C.leisureThisYear;
+  si("si_travel",    done||C.age<16||C.savings<LEISURE.travel.cost(C));
+  si("si_religion",  done||C.age<5);
+  si("si_hobby",     done||C.age<8);
+  si("si_volunteer", done||C.age<14);
+}
+
+// ── ATTRIBUTE RENDERING ──────────────────────────────────────────
+const ATTR_GROUPS = {
+  physical:[
+    {key:"health",     label:"Health",     color:"#b82000"},
+    {key:"resistance", label:"Resistance", color:"#c05000"},
+    {key:"strength",   label:"Strength",   color:"#7a3000"},
+    {key:"endurance",  label:"Endurance",  color:"#8b4513"},
+    {key:"athletic",   label:"Athletic",   color:"#2e6b2e"},
+    {key:"appearance", label:"Appearance", color:"#8b008b"},
+  ],
+  mental:[
+    {key:"intel",    label:"Intelligence",color:"#006600"},
+    {key:"wisdom",   label:"Wisdom",      color:"#004488"},
+    {key:"artistic", label:"Artistic",    color:"#aa5500"},
+    {key:"musical",  label:"Musical",     color:"#880055"},
+  ],
+  social:[
+    {key:"happy",     label:"Happiness",  color:"#0055aa"},
+    {key:"conscience",label:"Conscience", color:"#336699"},
+  ],
+};
+
+function renderAttrs(){
+  if(!C) return;
+  for(const [group, attrs] of Object.entries(ATTR_GROUPS)){
+    const el = document.getElementById(`attrs${group.charAt(0).toUpperCase()+group.slice(1)}`);
+    if(!el) continue;
+    el.innerHTML = attrs.map(({key,label,color})=>{
+      const val = C[key]||0;
+      return `<div class="attr-row">
+        <div class="attr-label">${label}</div>
+        <div class="attr-track"><div class="attr-fill" style="width:${val}%;background:${color}"></div></div>
+        <div class="attr-num">${val}</div>
+      </div>`;
+    }).join("");
+  }
+}
+
+// Keep setBar for any legacy calls — map to renderAttrs
+function setBar(){ renderAttrs(); }
+
+
+
+// ═══════════════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════════════
+document.addEventListener("keydown", e => {
+  // Don't fire if user is typing in an input
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
+
+  // Escape — close any open dialog or menu
+  if(e.key==="Escape"){
+    closeAllMenus();
+    ["deathOverlay","jobOverlay","raiseOverlay","infoOverlay",
+     "decisionOverlay","summaryOverlay","familyHistoryOverlay"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&el.classList.contains("active")) el.classList.remove("active");
+    });
+    return;
+  }
+
+  // Enter — confirm open dialog
+  if(e.key==="Enter"){
+    // Decision continue
+    const dc=document.getElementById("decisionContinueBtn");
+    if(dc&&dc.style.display!=="none"){ resolveDecision(); return; }
+    // Job OK
+    if(document.getElementById("jobOverlay").classList.contains("active")){ confirmJob(); return; }
+    // Any other overlay with visible OK/Close btn
+    for(const id of ["raiseOverlay","infoOverlay","summaryOverlay","familyHistoryOverlay"]){
+      if(document.getElementById(id).classList.contains("active")){
+        closeDialog(id); return;
+      }
+    }
+    return;
+  }
+
+  // Space — Age A Year (only when no dialog open)
+  if(e.key===" "||e.code==="Space"){
+    const anyOpen = ["deathOverlay","jobOverlay","raiseOverlay","infoOverlay",
+      "decisionOverlay","summaryOverlay","familyHistoryOverlay"]
+      .some(id=>document.getElementById(id).classList.contains("active"));
+    if(!anyOpen && !document.getElementById("ageBtn").disabled){
+      e.preventDefault();
+      ageAYear();
+    }
+    return;
+  }
+
+  // N — New Life (only when dead or no character)
+  if(e.key==="n"||e.key==="N"){
+    const anyOpen = ["deathOverlay","jobOverlay","raiseOverlay","infoOverlay",
+      "decisionOverlay","summaryOverlay","familyHistoryOverlay"]
+      .some(id=>document.getElementById(id).classList.contains("active"));
+    if(!anyOpen && (!C||dead)){
+      document.getElementById("introOverlay").classList.add("hidden");
+      newLife();
+    }
+    return;
+  }
+});
+</script>
+</body>
+</html>
